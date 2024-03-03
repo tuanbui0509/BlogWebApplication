@@ -27,7 +27,7 @@
 ## Installation Instructions
 
 ### Back-end: ASP.NET 8
-Go to the [Nuget Web Store page for *Markdown Here*](https://www.nuget.org/packages/) and install normally.
+Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and install normally.
 
 #### CleanArchitectureDemo.Domain project needs the following nuget packages
 
@@ -64,14 +64,9 @@ Go to the [Nuget Web Store page for *Markdown Here*](https://www.nuget.org/packa
 ## Features
 ### On Backend project
 
--  Entities
--  Dtos
--  Context
--  ORM
--  Http Methods
--  Swagger
--  Postman
--  Postman Collections
+- Authentication/Authorization
+- Get OTP 
+- Send Email 
 
 ### On Frontend project
 
@@ -91,7 +86,4 @@ Go to the [Nuget Web Store page for *Markdown Here*](https://www.nuget.org/packa
 
 # Finally
 
-[**Visit the website.**](http://markdown-here.com)<br>
-[**Get it for Chrome.**](https://chrome.google.com/webstore/detail/elifhakcjgalahccnjkneoccemfahfoa)<br>
-[**Get it for Firefox.**](https://addons.mozilla.org/en-US/firefox/addon/markdown-here/)<br>
-[**Get it for Safari.**](https://s3.amazonaws.com/markdown-here/markdown-here.safariextz)<br>
+[**Markdownguide**](https://www.markdownguide.org/basic-syntax/)<br>
