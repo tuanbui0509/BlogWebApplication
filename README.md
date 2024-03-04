@@ -2,8 +2,8 @@
 *CodeStudyMind* is a blog to sharing technical skill for C#, React, NextJS, Azure and speacially for <sup>&dagger;</sup> ASP.NET<sup>&Dagger;</sup>, ...
 ### Table of Contents
 1. **[Installation Instructions](#installation-instructions)**<br>
-2. **[Solution Architecture](#solution-architecture)**<br>
-3. **[Solution Technologies](#Solution-technologies)**<br>
+2. **[Solution Technologies](#Solution-technologies)**<be>
+3. **[Solution Architecture](#solution-architecture)**<br>
 4. **[Compatibility](#compatibility)**<br>
 5. **[Deployment](#deployment)**<br>
 6. **[Extension Bundles](#extension-bundles)**<br>
