@@ -1,4 +1,4 @@
-# ![CodeStudyMind](./images/logo.png) CodeStudyMind Blog
+# ![CodeStudyMind](./images/logo.png)
 *CodeStudyMind* is a blog to sharing technical skill for C#, React, NextJS, Azure and speacially for <sup>&dagger;</sup> ASP.NET<sup>&Dagger;</sup>, ...
 ### Table of Contents
 1. **[Installation Instructions](#installation-instructions)**<br>
