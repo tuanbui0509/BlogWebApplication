@@ -1,9 +1,9 @@
 using BlogWebApplication.Application.Common.Mappings;
 using BlogWebApplication.Domain.Entities;
 
-namespace BlogWebApplication.Application.Features.Players.Queries.GetAllPlayers
+namespace BlogWebApplication.Application.Features.Posts.Queries.GetAllPosts
 {
-    public class GetAllPlayersDto : IMapFrom<Post>
+    public class GetAllPostsDto : IMapFrom<Post>
     {
         public int Id { get; init; }
         public string Name { get; init; }

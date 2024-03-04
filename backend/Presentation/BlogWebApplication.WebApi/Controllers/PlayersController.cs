@@ -1,48 +1,48 @@
-using BlogWebApplication.Application.Features.Players.Commands.CreatePlayer;
-using BlogWebApplication.Application.Features.Players.Commands.DeletePlayer;
-using BlogWebApplication.Application.Features.Players.Commands.UpdatePlayer;
-using BlogWebApplication.Application.Features.Players.Queries.GetAllPlayers;
-using BlogWebApplication.Application.Features.Players.Queries.GetPlayerById;
-using BlogWebApplication.Application.Features.Players.Queries.GetPlayersWithPagination;
+using BlogWebApplication.Application.Features.Posts.Commands.CreatePost;
+using BlogWebApplication.Application.Features.Posts.Commands.DeletePost;
+using BlogWebApplication.Application.Features.Posts.Commands.UpdatePost;
+using BlogWebApplication.Application.Features.Posts.Queries.GetAllPosts;
+using BlogWebApplication.Application.Features.Posts.Queries.GetPostById;
+using BlogWebApplication.Application.Features.Posts.Queries.GetPostsWithPagination;
 using BlogWebApplication.Shared.Implements;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogWebApplication.WebApi.Controllers
 {
-    public class PlayersController : ApiControllerBase
+    public class PostsController : ApiControllerBase
     {
         private readonly IMediator _mediator;
 
-        public PlayersController(IMediator mediator)
+        public PostsController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<ActionResult<Result<List<GetAllPlayersDto>>>> Get()
+        public async Task<ActionResult<Result<List<GetAllPostsDto>>>> Get()
         {
-            return await _mediator.Send(new GetAllPlayersQuery());
+            return await _mediator.Send(new GetAllPostsQuery());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Result<GetPlayerByIdDto>>> GetPlayersById(int id)
+        public async Task<ActionResult<Result<GetPostByIdDto>>> GetPostsById(Guid id)
         {
-            return await _mediator.Send(new GetPlayerByIdQuery(id)); 
+            return await _mediator.Send(new GetPostByIdQuery(id)); 
         }
 
         // [HttpGet]
         // [Route("club/{clubId}")]
-        // public async Task<ActionResult<Result<List<GetPlayersByClubDto>>>> GetPlayersByClub(int clubId)
+        // public async Task<ActionResult<Result<List<GetPostsByClubDto>>>> GetPostsByClub(int clubId)
         // {
-        //     return await _mediator.Send(new GetPlayersByClubQuery(clubId));
+        //     return await _mediator.Send(new GetPostsByClubQuery(clubId));
         // }
 
         [HttpGet]
         [Route("paged")]
-        public async Task<ActionResult<PaginatedResult<GetPlayersWithPaginationDto>>> GetPlayersWithPagination([FromQuery] GetPlayersWithPaginationQuery query)
+        public async Task<ActionResult<PaginatedResult<GetPostsWithPaginationDto>>> GetPostsWithPagination([FromQuery] GetPostsWithPaginationQuery query)
         {
-            var validator = new GetPlayersWithPaginationValidator();
+            var validator = new GetPostsWithPaginationValidator();
 
             // Call Validate or ValidateAsync and pass the object which needs to be validated
             var result = validator.Validate(query);
@@ -57,13 +57,13 @@ namespace BlogWebApplication.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Result<int>>> Create(CreatePlayerCommand command)
+        public async Task<ActionResult<Result<Guid>>> Create(CreatePostCommand command)
         {
             return await _mediator.Send(command);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Result<int>>> Update(int id, UpdatePlayerCommand command)
+        public async Task<ActionResult<Result<Guid>>> Update(Guid id, UpdatePostCommand command)
         {
             if (id != command.Id)
             {
@@ -74,9 +74,9 @@ namespace BlogWebApplication.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Result<int>>> Delete(int id)
+        public async Task<ActionResult<Result<Guid>>> Delete(Guid id)
         {
-            return await _mediator.Send(new DeletePlayerCommand(id)); 
+            return await _mediator.Send(new DeletePostCommand(id)); 
         }
     }
 }

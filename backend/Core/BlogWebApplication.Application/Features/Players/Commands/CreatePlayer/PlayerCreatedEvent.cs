@@ -1,15 +1,15 @@
 using BlogWebApplication.Domain.Common;
 using BlogWebApplication.Domain.Entities;
 
-namespace BlogWebApplication.Application.Features.Players.Commands.CreatePlayer
+namespace BlogWebApplication.Application.Features.Posts.Commands.CreatePost
 {
-    public class PlayerCreatedEvent : BaseEvent
+    public class PostCreatedEvent : BaseEvent
     {
-        public Post Player { get; }
+        public Post Post { get; }
 
-        public PlayerCreatedEvent(Post player)
+        public PostCreatedEvent(Post Post)
         {
-            Player = player;
+            Post = Post;
         }
     }
 }

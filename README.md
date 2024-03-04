@@ -58,8 +58,12 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 ## Solution Architecture
 
 1. Clean Architecture
-
 <img src="./images/Clean-Architecture.png" />
+2. MediatR
+<img src="./images/mediatR.jpeg" />
+3. JWT-Authentication
+<img src="./images/jwt-authentication-flows.webp" />
+
 
 ## Features
 ### On Backend project

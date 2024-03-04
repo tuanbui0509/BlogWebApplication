@@ -2,8 +2,7 @@ using BlogWebApplication.Domain.Entities;
 
 namespace BlogWebApplication.Application.Interfaces.Repositories
 {
-    public interface IPlayerRepository
+    public interface IPostRepository
     {
-        Task<List<Post>> GetPlayersByClubAsync(int clubId);
     }
 }

@@ -30,7 +30,7 @@ namespace BlogWebApplication.Persistence.Extensions
             services
                 .AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork))
                 .AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-                .AddTransient<IPlayerRepository, PlayerRepository>();
+                .AddTransient<IPostRepository, PostRepository>();
                 // .AddTransient<IClubRepository, ClubRepository>()
                 // .AddTransient<IStadiumRepository, StadiumRepository>()
                 // .AddTransient<ICountryRepository, CountryRepository>();

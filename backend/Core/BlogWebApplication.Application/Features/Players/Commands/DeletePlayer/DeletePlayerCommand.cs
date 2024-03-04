@@ -5,48 +5,48 @@ using BlogWebApplication.Domain.Entities;
 using BlogWebApplication.Shared.Implements;
 using MediatR;
 
-namespace BlogWebApplication.Application.Features.Players.Commands.DeletePlayer
+namespace BlogWebApplication.Application.Features.Posts.Commands.DeletePost
 {
-    public class DeletePlayerCommand : IRequest<Result<int>>, IMapFrom<Post>
+    public class DeletePostCommand : IRequest<Result<Guid>>, IMapFrom<Post>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public DeletePlayerCommand()
+        public DeletePostCommand()
         {
 
         }
 
-        public DeletePlayerCommand(int id)
+        public DeletePostCommand(Guid id)
         {
             Id = id;
         }
     }
-    internal class DeletePlayerCommandHandler : IRequestHandler<DeletePlayerCommand, Result<int>>
+    internal class DeletePostCommandHandler : IRequestHandler<DeletePostCommand, Result<Guid>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public DeletePlayerCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public DeletePostCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<Result<int>> Handle(DeletePlayerCommand command, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(DeletePostCommand command, CancellationToken cancellationToken)
         {
-            var player = await _unitOfWork.Repository<Post>().GetByIdAsync(command.Id);
-            if (player != null)
+            var Post = await _unitOfWork.Repository<Post>().GetByIdAsync(command.Id);
+            if (Post != null)
             {
-                await _unitOfWork.Repository<Post>().DeleteAsync(player);
-                player.AddDomainEvent(new PlayerDeletedEvent(player));
+                await _unitOfWork.Repository<Post>().DeleteAsync(Post);
+                Post.AddDomainEvent(new PostDeletedEvent(Post));
 
                 await _unitOfWork.Save(cancellationToken);
 
-                return await Result<int>.SuccessAsync(player.Id, "Product Deleted");
+                return await Result<Guid>.SuccessAsync(Post.Id, "Product Deleted");
             }
             else
             {
-                return await Result<int>.FailureAsync("Player Not Found.");
+                return await Result<Guid>.FailureAsync("Post Not Found.");
             }
         }
     }

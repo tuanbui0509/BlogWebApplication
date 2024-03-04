@@ -1,6 +1,6 @@
 namespace BlogWebApplication.Domain.Entities
 {
-    public class PostCategories
+    public partial class PostCategories
     {
         public int Id { get; set; }
         public int PostId { get; set; }

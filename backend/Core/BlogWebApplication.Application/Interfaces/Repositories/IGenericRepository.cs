@@ -6,7 +6,7 @@ namespace BlogWebApplication.Application.Interfaces.Repositories
     {
         IQueryable<T> Entities { get; }
 
-        Task<T> GetByIdAsync(int id);
+        Task<T> GetByIdAsync(Guid id);
         Task<List<T>> GetAllAsync();
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);

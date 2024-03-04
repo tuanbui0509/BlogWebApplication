@@ -6,28 +6,28 @@ using BlogWebApplication.Shared.Implements;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogWebApplication.Application.Features.Players.Queries.GetAllPlayers
+namespace BlogWebApplication.Application.Features.Posts.Queries.GetAllPosts
 {
-    public record GetAllPlayersQuery : IRequest<Result<List<GetAllPlayersDto>>>;
+    public record GetAllPostsQuery : IRequest<Result<List<GetAllPostsDto>>>;
 
-    internal class GetAllPlayersQueryHandler : IRequestHandler<GetAllPlayersQuery, Result<List<GetAllPlayersDto>>>
+    internal class GetAllPostsQueryHandler : IRequestHandler<GetAllPostsQuery, Result<List<GetAllPostsDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public GetAllPlayersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetAllPostsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<Result<List<GetAllPlayersDto>>> Handle(GetAllPlayersQuery query, CancellationToken cancellationToken)
+        public async Task<Result<List<GetAllPostsDto>>> Handle(GetAllPostsQuery query, CancellationToken cancellationToken)
         { 
-            var players = await _unitOfWork.Repository<Post>().Entities
-                   .ProjectTo<GetAllPlayersDto>(_mapper.ConfigurationProvider)
+            var Posts = await _unitOfWork.Repository<Post>().Entities
+                   .ProjectTo<GetAllPostsDto>(_mapper.ConfigurationProvider)
                    .ToListAsync(cancellationToken);
 
-            return await Result<List<GetAllPlayersDto>>.SuccessAsync(players);
+            return await Result<List<GetAllPostsDto>>.SuccessAsync(Posts);
         }
     }
 }

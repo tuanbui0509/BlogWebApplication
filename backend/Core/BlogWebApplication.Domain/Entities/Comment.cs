@@ -2,7 +2,7 @@ using BlogWebApplication.Domain.Common;
 
 namespace BlogWebApplication.Domain.Entities
 {
-    public class Comment : BaseAuditableEntity
+    public partial class Comment : BaseAuditableEntity
     {
         public string CommentContents { get; set; }
         public string PostedBy { get; set; }

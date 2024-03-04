@@ -1,15 +1,15 @@
 using BlogWebApplication.Domain.Common;
 using BlogWebApplication.Domain.Entities;
 
-namespace BlogWebApplication.Application.Features.Players.Commands.DeletePlayer
+namespace BlogWebApplication.Application.Features.Posts.Commands.DeletePost
 {
-    public class PlayerDeletedEvent : BaseEvent
+    public class PostDeletedEvent : BaseEvent
     {
-        public Post Player { get; }
+        public Post Post { get; }
 
-        public PlayerDeletedEvent(Post player)
+        public PostDeletedEvent(Post Post)
         {
-            Player = player;
+            Post = Post;
         }
     }
 }

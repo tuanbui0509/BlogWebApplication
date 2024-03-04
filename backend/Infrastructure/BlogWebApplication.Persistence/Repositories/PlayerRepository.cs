@@ -8,18 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlogWebApplication.Persistence.Repositories
 {
-    public class PlayerRepository : IPlayerRepository
+    public class PostRepository : IPostRepository
     {
         private readonly IGenericRepository<Post> _repository;
 
-        public PlayerRepository(IGenericRepository<Post> repository) 
+        public PostRepository(IGenericRepository<Post> repository) 
         {
             _repository = repository;
-        }
-
-        public async Task<List<Post>> GetPlayersByClubAsync(int clubId)
-        {
-            return await _repository.Entities.Where(x => x.ClubId == clubId).ToListAsync();
         }
     }
 }

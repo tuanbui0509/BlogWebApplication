@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace BlogWebApplication.Application.Features.Players.Queries.GetPlayersWithPagination
+namespace BlogWebApplication.Application.Features.Posts.Queries.GetPostsWithPagination
 {
-    public class GetPlayersWithPaginationValidator: AbstractValidator<GetPlayersWithPaginationQuery>
+    public class GetPostsWithPaginationValidator: AbstractValidator<GetPostsWithPaginationQuery>
     {
-        public GetPlayersWithPaginationValidator()
+        public GetPostsWithPaginationValidator()
         {
             RuleFor(x => x.PageNumber)
                 .GreaterThanOrEqualTo(1)

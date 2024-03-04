@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using BlogWebApplication.Application.Common.Mappings;
 using BlogWebApplication.Domain.Entities;
 
-namespace BlogWebApplication.Application.Features.Players.Queries.GetPlayersWithPagination
+namespace BlogWebApplication.Application.Features.Posts.Queries.GetPostsWithPagination
 {
-    public class GetPlayersWithPaginationDto: IMapFrom<Post>
+    public class GetPostsWithPaginationDto: IMapFrom<Post>
     {
         public int Id { get; init; }
         public string Name { get; init; }

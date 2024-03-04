@@ -3,7 +3,7 @@ using BlogWebApplication.Domain.Entities.Authentication;
 
 namespace BlogWebApplication.Domain.Entities
 {
-    public class Post: BaseAuditableEntity
+    public partial class Post: BaseAuditableEntity
     {
         public string Title { get; set; }
         public string Slug { get; set; }
