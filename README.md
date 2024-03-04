@@ -9,10 +9,10 @@
 6. **[Extension Bundles](#extension-bundles)**<br>
 
 ## Solution Technologies
-* Create Database schema for blog management *Code first, Lazy Eager Explicit Loading* .
+* Create a Database schema for blog management *Code first, Lazy Eager Explicit Loading*.
 * Use NoSQL MongoDB.
 * Apply design pattern **Unit of Work** for web.
-* *Authentication and Authorization* apply **(2FA)** Google.
+* *Authentication and Authorization* apply **(2FA)** login Google, Facebook, ...
 * Apply Unit Test **NUnit** for web.
 * Apply Caching **Memory Cache, Redis cache** for web.
 * Apply Log **Serilog, Datadog** for web.
@@ -22,18 +22,18 @@
 * Apply Handling messages  **MediatR**.
 * Apply Validation **FluentValidation**.
 * Apply **Polly Retry** to define a set of policies, such as retry, circuit breaker, and timeout.
-* **Another Technical** *Microservices: Orchestration (Kubernetes), API-Getway(Ocelot) Containerization (Docker) Reverse Proxy(Yarp) Message Queue(Kafka, RabbiMQ)*
+* **Another Technical** *Microservices: Orchestration (Kubernetes), API-Gateway(Ocelot) Containerization (Docker) Reverse Proxy(Yarp) Message Queue(Kafka, RabbiMQ)*
 
 ## Installation Instructions
 
 ### Back-end: ASP.NET 8
 Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and install normally.
 
-#### CleanArchitectureDemo.Domain project needs the following nuget packages
+#### CleanArchitectureDemo.Domain project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
 
-#### CleanArchitectureDemo.Application project needs the following nuget packages
+#### CleanArchitectureDemo.Application project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
 - [Microsoft.EntityFrameworkCore (8.0.5)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
@@ -42,19 +42,19 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 - [FluentValidation (11.5.2)]("https://www.nuget.org/packages/FluentValidation)
 - [FluentValidation.AspNetCore (11.3.0)](https://www.nuget.org/packages/FluentValidation.AspNetCore)
 
-#### CleanArchitectureDemo.Persistence project needs the following nuget packages
+#### CleanArchitectureDemo.Persistence project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
 - [Microsoft.EntityFrameworkCore (8.0.5)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
 - [Microsoft.EntityFrameworkCore.SqlServer (8.0.5)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/)
 - [Microsoft.Extensions.Configuration (8.0.0)](https://www.nuget.org/packages/Microsoft.Extensions.Configuration/)
 
-#### CleanArchitectureDemo.WebAPI project needs the following nuget packages
+#### CleanArchitectureDemo.WebAPI project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
 
-### Front-end: NextJS
-
+### Front-end User page: NextJS => For SEO
+### Front-end Admin page: ReactJS
 ## Solution Architecture
 
 1. Clean Architecture
