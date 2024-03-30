@@ -1,22 +1,50 @@
+using System.Text;
 using BlogWebApplication.Application.Extensions;
+using BlogWebApplication.Domain.Entities.Authentication;
 using BlogWebApplication.Infrastructure.Extensions;
+using BlogWebApplication.Infrastructure.Services.Tokens;
+using BlogWebApplication.Persistence.Contexts;
 using BlogWebApplication.Persistence.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddApiVersioning();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
-// Add services to the container.
-builder.Services.AddApplicationLayer();
-builder.Services.AddInfrastructureLayer();
-builder.Services.AddPersistenceLayer(builder.Configuration);
-
 builder.Services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+//Add Identity & JWT authentication
+//Identity
+builder.Services.AddIdentity<UserApplication, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddSignInManager()
+    .AddRoles<IdentityRole>();
+
+// JWT 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+});
 
 builder.Services.AddSwaggerGen(option =>
 {
@@ -26,7 +54,7 @@ builder.Services.AddSwaggerGen(option =>
         In = ParameterLocation.Header,
         Description = "Please enter a valid token",
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
+        Type = SecuritySchemeType.ApiKey,
         BearerFormat = "JWT",
         Scheme = "Bearer"
     });
@@ -45,6 +73,14 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
+// Add services to the container.
+builder.Services.AddApplicationLayer();
+builder.Services.AddInfrastructureLayer();
+builder.Services.AddPersistenceLayer(builder.Configuration);
+
+// Register our TokenService dependency
+builder.Services.AddScoped<TokenService, TokenService>();
 
 var app = builder.Build();
 

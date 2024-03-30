@@ -1,20 +1,24 @@
-using System.Reflection;
-using BlogWebApplication.Domain.Common;
-using BlogWebApplication.Domain.Common.Interfaces;
 using BlogWebApplication.Domain.Entities;
+using BlogWebApplication.Domain.Entities.Authentication;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogWebApplication.Persistence.Contexts
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<UserApplication>
     {
-        private readonly IDomainEventDispatcher _dispatcher;
+        // private readonly IDomainEventDispatcher _dispatcher;
+        // public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
+        //   IDomainEventDispatcher dispatcher)
+        //     : base(options)
+        // {
+        //     _dispatcher = dispatcher;
+        // }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-          IDomainEventDispatcher dispatcher)
-            : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
         {
-            _dispatcher = dispatcher;
+
         }
 
         #region Add DbSet
@@ -145,16 +149,16 @@ namespace BlogWebApplication.Persistence.Contexts
         {
             int result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-            // ignore events if no dispatcher provided
-            if (_dispatcher == null) return result;
+            // // ignore events if no dispatcher provided
+            // if (_dispatcher == null) return result;
 
-            // dispatch events only if save was successful
-            var entitiesWithEvents = ChangeTracker.Entries<BaseEntity>()
-                .Select(e => e.Entity)
-                .Where(e => e.DomainEvents.Any())
-                .ToArray();
+            // // dispatch events only if save was successful
+            // var entitiesWithEvents = ChangeTracker.Entries<BaseEntity>()
+            //     .Select(e => e.Entity)
+            //     .Where(e => e.DomainEvents.Any())
+            //     .ToArray();
 
-            await _dispatcher.DispatchAndClearEvents(entitiesWithEvents);
+            // await _dispatcher.DispatchAndClearEvents(entitiesWithEvents);
 
             return result;
         }

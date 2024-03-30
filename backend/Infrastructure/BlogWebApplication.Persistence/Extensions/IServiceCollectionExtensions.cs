@@ -1,4 +1,3 @@
-using System.Reflection;
 using BlogWebApplication.Application.Interfaces.Repositories;
 using BlogWebApplication.Persistence.Contexts;
 using BlogWebApplication.Persistence.Repositories;
@@ -20,9 +19,7 @@ namespace BlogWebApplication.Persistence.Extensions
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-               options.UseSqlServer(connectionString,
-                   builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
+            services.AddDbContext<ApplicationDbContext>(o => o.UseSqlServer(connectionString));
         }
 
         private static void AddRepositories(this IServiceCollection services)
