@@ -101,9 +101,6 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
             element "Web Browser" {
                 shape WebBrowser
             }
-            element "Mobile App" {
-                shape MobileDeviceLandscape
-            }
             element "Database" {
                 shape Cylinder
             }
