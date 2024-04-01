@@ -4,6 +4,10 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
         user = person "User" "A visitor who reads and interacts with the blog."
         admin = person "Admin" "An admin user who manages the blog."
         system = softwareSystem "Blog Web System" {
+            adminPanel = container "Admin Panel" "Allows admins to manage the blog" {
+                tags = "Admin Panel"
+                technology "HTML, CSS, JavaScript, Frontend Framework ReactJS"
+            }
             webServer = container "Web Server" "Serves web pages to users" {
                 tags = "Web Server"
                 technology "HTML, CSS, JavaScript, Frontend Framework NextJS"
@@ -11,12 +15,13 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
             applicationServer = container "Application Server" "Hosts the blog application logic." {
                 tags = "Application Server"
                 technology "Backend Framework (e.g., Django, ASP.NET, Spring Boot)"
-                authController = component "Sign In Controller" "Allows users to sign in to the Internet Banking System."
-                blogController = component "Blog Controller" "Allow users to CRUD blogs"
-                resetPasswordController = component "Reset Password Controller" "Allows users to reset their passwords with a single use URL."
-                securityComponent = component "Security Component" "Provides functionality related to signing in, changing passwords, etc."
-                PaymentComponent = component "Make payment" "Make payment for premium blog and donate."
-                emailComponent = component "E-mail Component" "Sends e-mails to users."
+                authenticationController = component "Authentication Controller" "Handles user authentication"
+                postController = component "Post Controller" "Allow users handles blog post-related actions"
+                userController = component "User Controller" "Handles user-related actions"
+                commentComponent = component "Comment Controller" "Handles comment-related actions"
+                paymentComponent = component "Make payment Controller" "Make payment for premium blog and donate."
+                emailComponent = component "E-mail Controller" "Sends e-mails to users."
+                databaseComponent = component "Database Controller" "Manages connections to the database"
             }
             database = container "Database" "Stores blog posts, user information, comments, etc" {
                 tags = "Database"
@@ -33,27 +38,29 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
         system -> payment "Donate, make payment"
 
         # relationships to/from actors
-        admin -> user "Manages users"
-        admin -> applicationServer "Manages articles"
+        admin -> adminPanel "Manages articles, users, ..."
         user -> applicationServer "Visits blog domail" "HTTPS"
         user -> webServer "View, read, write, like, comment blog, view account, make payment premium blog, ect" "HTTPS"
        
         # relationships to/from containers
+        adminPanel -> webServer "Manages blog content"
         webServer -> applicationServer "For dynamic content rendering" "HTTP" 
         applicationServer -> database "Stores and retrieves data" "JDBC, ORM"
         applicationServer -> email "Send e-mail using"
         applicationServer -> payment "Makes API call to" "HTTPS"
         
         # relationships to/from components
-        webServer -> blogController "Makes API calls to" "JSON/HTTPS"
-        webServer -> resetPasswordController "Makes API calls to" "JSON/HTTPS"
-        webServer -> authController "Makes API calls to" "JSON/HTTPS"
-        authController -> securityComponent "Uses"
-        blogController -> PaymentComponent "Uses"
-        resetPasswordController -> securityComponent "Uses"
-        resetPasswordController -> emailComponent "Uses"
-        securityComponent -> database "Reads from and writes to" "SQL/TCP"
-        PaymentComponent -> payment "Makes API calls to" "XML/HTTPS"
+        webServer -> postController "Makes API calls to" "JSON/HTTPS"
+        webServer -> userController "Makes API calls to" "JSON/HTTPS"
+        webServer -> authenticationController "Makes API calls to" "JSON/HTTPS"
+        authenticationController -> databaseComponent "Uses"
+        postController -> paymentComponent "Uses"
+        userController -> databaseComponent "Uses"
+        userController -> emailComponent "Uses"
+        userController -> commentComponent "Uses"
+        postController -> commentComponent "Uses"
+        databaseComponent -> database "Reads from and writes to" "SQL/TCP"
+        paymentComponent -> payment "Makes API calls to" "XML/HTTPS"
         emailComponent -> email "Sends e-mail using"
     }   
 
