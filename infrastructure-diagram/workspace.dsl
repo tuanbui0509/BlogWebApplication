@@ -18,10 +18,10 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
                 authenticationController = component "Authentication Controller" "Handles user authentication"
                 postController = component "Post Controller" "Allow users handles blog post-related actions"
                 userController = component "User Controller" "Handles user-related actions"
-                commentComponent = component "Comment Controller" "Handles comment-related actions"
-                paymentComponent = component "Make payment Controller" "Make payment for premium blog and donate."
-                emailComponent = component "E-mail Controller" "Sends e-mails to users."
-                databaseComponent = component "Database Controller" "Manages connections to the database"
+                commentComponent = component "Comment Component" "Handles comment-related actions"
+                paymentController = component "Make payment Controller" "Make payment for premium blog and donate."
+                emailComponent = component "E-mail Component" "Sends e-mails to users."
+                databaseComponent = component "Database Component" "Manages connections to the database"
             }
             database = container "Database" "Stores blog posts, user information, comments, etc" {
                 tags = "Database"
@@ -53,14 +53,14 @@ workspace "Blog Web Application" "This is a description of the blog web applicat
         webServer -> postController "Makes API calls to" "JSON/HTTPS"
         webServer -> userController "Makes API calls to" "JSON/HTTPS"
         webServer -> authenticationController "Makes API calls to" "JSON/HTTPS"
+        webServer -> paymentController "Makes API calls to" "JSON/HTTPS"
         authenticationController -> databaseComponent "Uses"
-        postController -> paymentComponent "Uses"
         userController -> databaseComponent "Uses"
         userController -> emailComponent "Uses"
         userController -> commentComponent "Uses"
         postController -> commentComponent "Uses"
         databaseComponent -> database "Reads from and writes to" "SQL/TCP"
-        paymentComponent -> payment "Makes API calls to" "XML/HTTPS"
+        paymentController -> payment "Makes API calls to" "XML/HTTPS"
         emailComponent -> email "Sends e-mail using"
     }   
 
