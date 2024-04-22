@@ -67,7 +67,7 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 
 ## Features
 ### On Backend project
-
+- Apply the clean architecture for an ASP.NET application using Domain-Driven Design (DDD) principles for a Blog web application
 - Authentication/Authorization
 - Get OTP 
 - Send Email 
