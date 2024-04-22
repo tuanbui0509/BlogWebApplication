@@ -1,8 +1,9 @@
+using Blog.Domain.Common;
+
 namespace Blog.Domain.Entities
 {
-    public partial class PostCategories
+    public partial class PostCategories : BaseAuditableEntity
     {
-        public int Id { get; set; }
         
         // Foreign key property
         public Guid PostId { get; set; }

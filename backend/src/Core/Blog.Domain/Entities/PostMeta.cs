@@ -1,8 +1,9 @@
+using Blog.Domain.Common;
+
 namespace Blog.Domain.Entities
 {
-    public partial class PostMeta
+    public partial class PostMeta : BaseAuditableEntity
     {
-        public int Id { get; set; }
         public string Key { get; set; }
         public string Content { get; set; }
         
