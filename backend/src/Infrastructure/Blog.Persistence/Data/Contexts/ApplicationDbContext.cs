@@ -10,7 +10,10 @@ namespace Blog.Persistence.Data.Contexts
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<PostCategories> PostCategories => Set<PostCategories>();
@@ -28,7 +31,6 @@ namespace Blog.Persistence.Data.Contexts
             {
                 p.ToTable("Posts");
                 p.HasKey(p => p.Id);
-                p.Property(e => e.Id).UseIdentityColumn();
                 p.Property(e => e.CreatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.UpdatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.Title).IsRequired().HasMaxLength(250);
@@ -44,12 +46,11 @@ namespace Blog.Persistence.Data.Contexts
             {
                 p.ToTable("Comments");
                 p.HasKey(x => x.Id);
-                p.Property(e => e.Id).UseIdentityColumn();
                 p.HasOne(c => c.User)
                     .WithMany(u => u.Comments)
                     .HasForeignKey(c => c.UserId)
                     .HasConstraintName("FK_Comments_Users")
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.NoAction);
 
                 p.HasOne(c => c.ParentComment)
                     .WithMany(pc => pc.ChildComments)
@@ -70,7 +71,6 @@ namespace Blog.Persistence.Data.Contexts
             {
                 p.ToTable("PostMetas");
                 p.HasKey(p => p.Id);
-                p.Property(e => e.Id).UseIdentityColumn();
                 p.Property(x => x.Key).HasMaxLength(100);
                 p.Property(x => x.Content).HasMaxLength(250);
                 p.HasOne(e => e.Post)
@@ -86,11 +86,14 @@ namespace Blog.Persistence.Data.Contexts
                 p.HasOne(e => e.User)
                                     .WithMany(e => e.Likes)
                                     .HasForeignKey(e => e.UserId)
-                                    .HasConstraintName("FK_Likes_Users");
+                                    .HasConstraintName("FK_Likes_Users")
+                                    .OnDelete(DeleteBehavior.NoAction);
+
                 p.HasOne(e => e.Post)
                                     .WithMany(e => e.Likes)
                                     .HasForeignKey(e => e.PostId)
-                                    .HasConstraintName("FK_Likes_Posts");
+                                    .HasConstraintName("FK_Likes_Posts")
+                                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<PostTag>(p =>
@@ -124,7 +127,6 @@ namespace Blog.Persistence.Data.Contexts
             {
                 p.ToTable("Categories");
                 p.HasKey(p => p.Id);
-                p.Property(e => e.Id).UseIdentityColumn();
                 p.Property(e => e.CreatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.UpdatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.Title).IsRequired().HasMaxLength(150);
@@ -142,7 +144,7 @@ namespace Blog.Persistence.Data.Contexts
                         .WithMany(e => e.PostCategories)
                         .HasForeignKey(e => e.PostId)
                         .HasConstraintName("FK_PostCategories_Posts");
-                
+
                 p.HasOne(e => e.Category)
                         .WithMany(e => e.PostCategories)
                         .HasForeignKey(e => e.CategoryId)
@@ -154,7 +156,7 @@ namespace Blog.Persistence.Data.Contexts
             {
                 modelBuilder.Entity(entityType.ClrType).Property<string>("CreatedBy").IsRequired();
                 modelBuilder.Entity(entityType.ClrType).Property<string>("UpdatedBy");
-                modelBuilder.Entity(entityType.ClrType).Property<DateTime>("CreatedDate").IsRequired();
+                modelBuilder.Entity(entityType.ClrType).Property<DateTime?>("CreatedDate").IsRequired();
                 modelBuilder.Entity(entityType.ClrType).Property<DateTime?>("UpdatedDate");
             }
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
