@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Blog.Application/Blog.Application.csproj" />
+    <ProjectReference Include="../../Core/Blog.Domain/Blog.Domain.csproj" />
+  </ItemGroup>
 </Project>
