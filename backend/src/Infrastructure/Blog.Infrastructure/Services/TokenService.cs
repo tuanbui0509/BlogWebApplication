@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Blog.Application.Common.Interfaces;
 using Blog.Domain.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,24 +12,48 @@ namespace Blog.Infrastructure.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _config;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public TokenService(IConfiguration config)
+        public TokenService(
+            IConfiguration config,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _config = config;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public string CreateToken(ApplicationUser user)
+        public async Task<string> CreateTokenAsync(ApplicationUser user)
         {
-            var key = Encoding.UTF8.GetBytes(_config["JWT:SigningKey"] ?? string.Empty);
+            var key = Encoding.ASCII.GetBytes(_config["JWT:SigningKey"] ?? string.Empty);
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
-                new Claim (ClaimTypes.Name,user.FullName),
+                new Claim (ClaimTypes.Name, user.FullName),
                 new Claim("Id", user.Id.ToString()),
-                new Claim("TokenId", Guid.NewGuid().ToString()),//roles
-                // new Claim(ClaimTypes.Role, user.Role),
+                new Claim("TokenId", Guid.NewGuid().ToString())
             };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            claims.AddRange(userClaims);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role != null)
+                {
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    foreach (Claim roleClaim in roleClaims)
+                    {
+                        claims.Add(roleClaim);
+                    }
+                }
+            }
+            
             var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512);
             var tokenDescriptor = new SecurityTokenDescriptor
             {

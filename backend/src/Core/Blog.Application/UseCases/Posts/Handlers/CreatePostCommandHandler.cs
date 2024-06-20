@@ -17,15 +17,17 @@ namespace Blog.Application.UseCases.Posts.Handlers
 
         public async Task<Guid> Handle(CreatePostCommand command, CancellationToken cancellationToken)
         {
+            
             var entity = new Post
             {
                 Title = command.Title,
                 Slug = command.Slug,
                 PostContents = command.PostContents,
-                CreatedBy = "Tuan",
+                CreatedBy = command.UserName,
                 CreatedDate = DateTime.UtcNow,
-                UpdatedBy = "Tuan",
+                UpdatedBy = command.UserName,
                 UpdatedDate = DateTime.UtcNow,
+                UserId = command?.UserId,
             };
 
             await _unitOfWork.Repository<Post>().AddAsync(entity);

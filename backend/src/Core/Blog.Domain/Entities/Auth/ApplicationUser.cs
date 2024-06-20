@@ -1,4 +1,5 @@
 using Blog.Domain.Entities;
+using Blog.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace Blog.Domain.Identity
@@ -6,10 +7,8 @@ namespace Blog.Domain.Identity
     public class ApplicationUser : IdentityUser
     {
         // Add additional properties as needed for your blog users
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
         public string Email { get; set; }
-        // public string Role { get; init; } = string.Empty;
-
         // Navigation properties
         public ICollection<Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }

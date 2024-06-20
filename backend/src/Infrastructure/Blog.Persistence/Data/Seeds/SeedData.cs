@@ -23,10 +23,9 @@ namespace Blog.Persistence.Data.Seeds
 
         public async Task SetUpRoles()
         {
-            var roles = _config.GetSection("Roles").Get<IEnumerable<string>>();
-            // await _roleManager.CreateAsync(new IdentityRole(Roles.SuperAdmin.ToString()));
-            // await _roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            // await _roleManager.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            await _roleManager.CreateAsync(new IdentityRole(Roles.SuperAdmin.ToString()));
+            await _roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
+            await _roleManager.CreateAsync(new IdentityRole(Roles.User.ToString()));
         }
 
         public async Task SeedSuperAdminAsync()

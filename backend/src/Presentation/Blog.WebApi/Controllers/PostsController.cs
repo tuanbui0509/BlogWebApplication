@@ -1,22 +1,31 @@
+using System.Security.Claims;
 using Blog.Application.UseCases.Posts.Commands.CreatePost;
 using Blog.Application.UseCases.Posts.Queries.GetAllPosts;
+using Blog.Domain.Enums;
+using Blog.Domain.Identity;
 using Blog.Shared;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.WebApi.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(Roles.Admin) + "," + nameof(Roles.SuperAdmin) + "," + nameof(Roles.User))]
     public class PostsController : ApiControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PostsController(IMediator mediator)
+
+        public PostsController(IMediator mediator, UserManager<ApplicationUser> userManager)
         {
             _mediator = mediator;
+            _userManager = userManager;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<Result<List<GetAllPostsDto>>>> Get()
         {
@@ -57,6 +66,19 @@ namespace Blog.WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Guid>> Create(CreatePostCommand command)
         {
+            var user = User.Identity;
+
+            if (user == null || !user.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity?.FindFirst("Id")?.Value;
+            var userNameClaim = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
+
+            command.UserId = userIdClaim;
+            command.UserName = userNameClaim;
+
             return await _mediator.Send(command);
         }
 

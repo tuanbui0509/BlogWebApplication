@@ -56,6 +56,8 @@ builder.Services.AddAuthentication(options =>
 // Adding Jwt Bearer
 .AddJwtBearer(options =>
 {
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -64,7 +66,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigningKey"])
+            System.Text.Encoding.ASCII.GetBytes(builder.Configuration["JWT:SigningKey"])
         )
     };
 });
@@ -119,7 +121,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 var seed = app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedData>();
-await seed.SetUpRoles();
+// await seed.SetUpRoles();
 await seed.SeedBasicUserAsync();
 await seed.SeedAdminAsync();
 await seed.SeedSuperAdminAsync();
