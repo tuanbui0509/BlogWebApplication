@@ -42,11 +42,11 @@ namespace Blog.WebApi.Controllers
             var user = await _userManager.Users.
                 FirstOrDefaultAsync(x => x.UserName.ToLower().Equals(loginDto.Username.ToLower()));
 
-            if (user == null) return Unauthorized("Invalid username!");
+            if (user == null) return ValidationProblem("Invalid username!");
 
             var result = await _signinManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (!result.Succeeded) return Unauthorized("Username not found and/or password incorrect");
+            if (!result.Succeeded) return ValidationProblem("Username not found and/or password incorrect");
 
             var userRoles = await _userManager.GetRolesAsync(user);
             var token = await _tokenService.CreateTokenAsync(user);
@@ -146,6 +146,8 @@ namespace Blog.WebApi.Controllers
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
+
+        [Authorize(Roles = nameof(Roles.SuperAdmin))]
         [HttpGet]
         public IActionResult GetAllRoles()
         {
@@ -191,7 +193,7 @@ namespace Blog.WebApi.Controllers
         [Route("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(email.ToLower());
 
             if (user != null)
             {

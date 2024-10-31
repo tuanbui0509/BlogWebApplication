@@ -83,9 +83,10 @@ app.UseAuthorization();
 app.MapControllers();
 
 var seed = app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedData>();
+// Run first migration
 // await seed.SetUpRoles();
-await seed.SeedBasicUserAsync();
-await seed.SeedAdminAsync();
-await seed.SeedSuperAdminAsync();
+// await seed.SeedBasicUserAsync();
+// await seed.SeedAdminAsync();
+// await seed.SeedSuperAdminAsync();
 
 app.Run();

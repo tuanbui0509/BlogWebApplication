@@ -8,7 +8,7 @@ namespace Blog.Domain.Common
     /// </summary>
     public class BaseEntity : IEntity<Guid>
     {
-        private readonly List<BaseEvent> _domainEvents = new();
+        private readonly List<BaseEvent> _domainEvents = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseEntity"/> class.
