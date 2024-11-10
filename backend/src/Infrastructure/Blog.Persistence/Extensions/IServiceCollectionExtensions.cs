@@ -1,3 +1,4 @@
+using Blog.Application.Abstractions;
 using Blog.Application.Common.Interfaces;
 using Blog.Application.Common.Interfaces.Repositories;
 using Blog.Persistence.Data.Contexts;
@@ -15,6 +16,8 @@ namespace Blog.Persistence.Extensions
         {
             //services.AddMappings();
             services.AddDbContext(configuration);
+            // Register ApplicationDbContextFactory for DI
+            services.AddSingleton<ApplicationDbContextFactory>();
             services.AddRepositories();
             services.AddSeedData();
         }
@@ -22,7 +25,6 @@ namespace Blog.Persistence.Extensions
         public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-
             services.AddDbContext<ApplicationDbContext>(options =>
                options.UseSqlServer(connectionString,
                    builder => builder.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
@@ -34,7 +36,8 @@ namespace Blog.Persistence.Extensions
             services
                 .AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork))
                 .AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-                .AddTransient<IPostRepository, PostRepository>();
+                .AddTransient<IPostRepository, PostRepository>()
+                .AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         }
         private static void AddSeedData(this IServiceCollection services)
         {

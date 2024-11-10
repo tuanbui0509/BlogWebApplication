@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Persistence.Data.Contexts
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IApplicationDbContext
     {
-        public ApplicationDbContext(DbContextOptions options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
@@ -22,6 +22,7 @@ namespace Blog.Persistence.Data.Contexts
         public DbSet<Comment> Comments => Set<Comment>();
         public DbSet<Like> Likes => Set<Like>();
         public DbSet<PostMeta> PostMetas => Set<PostMeta>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,9 +36,9 @@ namespace Blog.Persistence.Data.Contexts
                 p.Property(e => e.UpdatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.Title).IsRequired().HasMaxLength(250);
                 p.Property(e => e.Slug).IsRequired().HasMaxLength(250);
-                p.HasOne(u => u.User)
+                p.HasOne(u => u.Author)
                     .WithMany(u => u.Posts)
-                    .HasForeignKey(u => u.UserId)
+                    .HasForeignKey(u => u.AuthorId)
                     .HasConstraintName("FK_Posts_Users")
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -119,7 +120,7 @@ namespace Blog.Persistence.Data.Contexts
             modelBuilder.Entity<Tag>(p =>
             {
                 p.ToTable("Tags");
-                p.HasIndex(t => t.Title)
+                p.HasIndex(t => t.TagName)
                     .IsUnique();
             });
 
@@ -129,7 +130,7 @@ namespace Blog.Persistence.Data.Contexts
                 p.HasKey(p => p.Id);
                 p.Property(e => e.CreatedDate).HasDefaultValueSql("getutcdate()");
                 p.Property(e => e.UpdatedDate).HasDefaultValueSql("getutcdate()");
-                p.Property(e => e.Title).IsRequired().HasMaxLength(150);
+                p.Property(e => e.CategoryName).IsRequired().HasMaxLength(150);
                 p.Property(e => e.Slug).IsRequired().HasMaxLength(100);
                 p.Property(e => e.Description).IsRequired().HasMaxLength(300);
             });
@@ -160,6 +161,7 @@ namespace Blog.Persistence.Data.Contexts
                 modelBuilder.Entity(entityType.ClrType).Property<DateTime?>("UpdatedDate");
             }
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            
         }
     }
 }

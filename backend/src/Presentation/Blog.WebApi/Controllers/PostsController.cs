@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using Blog.Application.UseCases.Posts.Commands.CreatePost;
-using Blog.Application.UseCases.Posts.Queries.GetAllPosts;
+using Blog.Application.Business.Posts.Commands.CreatePost;
+using Blog.Application.Business.Posts.Queries.GetAllPosts;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
 using Blog.Shared;
@@ -27,9 +27,14 @@ namespace Blog.WebApi.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<Result<List<GetAllPostsDto>>>> Get()
+        public async Task<IActionResult> Get()
         {
-            return await _mediator.Send(new GetAllPostsQuery());
+            var result = await _mediator.Send(new GetAllPostsQuery());
+            if (!result.Success)
+            {
+                return StatusCode(result.StatusCode, result);  // Return failure result
+            }
+            return Ok(result);  // Return success result
         }
 
         // [HttpGet("{id}")]
@@ -63,24 +68,24 @@ namespace Blog.WebApi.Controllers
         //     return BadRequest(errorMessages);
         // }
 
-        [HttpPost]
-        public async Task<ActionResult<Guid>> Create(CreatePostCommand command)
-        {
-            var user = User.Identity;
+        // [HttpPost]
+        // public async Task<ActionResult<Guid>> Create(CreatePostCommand command)
+        // {
+        //     var user = User.Identity;
 
-            if (user == null || !user.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-            var claimsIdentity = User.Identity as ClaimsIdentity;
-            var userIdClaim = claimsIdentity?.FindFirst("Id")?.Value;
-            var userNameClaim = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
+        //     if (user == null || !user.IsAuthenticated)
+        //     {
+        //         return Unauthorized();
+        //     }
+        //     var claimsIdentity = User.Identity as ClaimsIdentity;
+        //     var userIdClaim = claimsIdentity?.FindFirst("Id")?.Value;
+        //     var userNameClaim = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
 
-            command.UserId = userIdClaim;
-            command.UserName = userNameClaim;
+        //     command.UserId = userIdClaim;
+        //     command.UserName = userNameClaim;
 
-            return await _mediator.Send(command);
-        }
+        //     return await _mediator.Send(command);
+        // }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<Result<int>>> Update(int id, UpdatePlayerCommand command)

@@ -6,7 +6,7 @@ namespace Blog.Domain.Entities
     public partial class Like : BaseAuditableEntity
     {
         // Foreign key property
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
         public Guid PostId { get; set; }
         // Navigation property
         public ApplicationUser User { get; set; }

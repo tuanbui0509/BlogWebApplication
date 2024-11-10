@@ -41,12 +41,17 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddAuthorizationBuilder();
+// builder.Services.AddAuthorizationBuilder();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SuperAdminOnly", policy =>
+        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "SuperAdmin"));
+});
 
 // For Identity
 builder.Services
     .AddIdentityCore<ApplicationUser>()
-    .AddRoles<IdentityRole>()
+    .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
@@ -57,7 +62,13 @@ builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddPersistenceLayer(builder.Configuration);
 builder.Services.AddControllers().AddNewtonsoftJson();
 var app = builder.Build();
-
+// Use SeedData to seed database when the application starts
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var seedData = serviceProvider.GetRequiredService<SeedData>();
+    await seedData.Initialize(serviceProvider);
+}
 // global cors policy
 app.UseCors(x => x
     .AllowAnyOrigin()
@@ -83,10 +94,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 var seed = app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedData>();
-// Run first migration
-// await seed.SetUpRoles();
-// await seed.SeedBasicUserAsync();
-// await seed.SeedAdminAsync();
-// await seed.SeedSuperAdminAsync();
 
 app.Run();

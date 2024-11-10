@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Blog.Domain.Identity
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<Guid>
     {
         // Add additional properties as needed for your blog users
         public string? FullName { get; set; }

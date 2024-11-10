@@ -1,8 +1,11 @@
+using System.Security.Claims;
+using Blog.Application.Business.Authentication.Commands;
 using Blog.Application.Common.Dtos.Auth;
 using Blog.Application.Common.Interfaces;
 using Blog.Domain.Constants;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,101 +17,51 @@ namespace Blog.WebApi.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : ApiControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<ApplicationUser> _signinManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         protected readonly ILogger<UserController> _logger;
+        private readonly IMediator _mediator;
+
         public UserController(
             UserManager<ApplicationUser> userManager,
             ITokenService tokenService,
             SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager,
-            ILogger<UserController> logger)
+            RoleManager<ApplicationRole> roleManager,
+            ILogger<UserController> logger,
+            IMediator mediator)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signinManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _mediator = mediator;
         }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate(LoginDto loginDto)
+        public async Task<IActionResult> Authenticate([FromBody] LoginCommand command)
         {
-            var user = await _userManager.Users.
-                FirstOrDefaultAsync(x => x.UserName.ToLower().Equals(loginDto.Username.ToLower()));
-
-            if (user == null) return ValidationProblem("Invalid username!");
-
-            var result = await _signinManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-
-            if (!result.Succeeded) return ValidationProblem("Username not found and/or password incorrect");
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var token = await _tokenService.CreateTokenAsync(user);
-            return Ok(
-                new NewUserDto
-                {
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Token = token,
-                }
-            );
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+                return Ok(result);
+            return Unauthorized(result.Errors);
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command)
         {
-            try
-            {
-                var userExists = await _userManager.FindByNameAsync(registerDto.Username);
-                if (userExists != null)
-                    return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+                return Ok(new { Token = result.AccessToken });
 
-                var appUser = new ApplicationUser
-                {
-                    UserName = registerDto.Username,
-                    Email = registerDto?.Email,
-                    FullName = registerDto?.FullName,
-                };
-
-                var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
-
-                if (createdUser.Succeeded)
-                {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, Roles.User.ToString());
-                    var token = await _tokenService.CreateTokenAsync(appUser);
-
-                    if (roleResult.Succeeded)
-                    {
-                        return Ok(
-                            new NewUserDto
-                            {
-                                UserName = appUser.UserName,
-                                Email = appUser.Email,
-                                Token = token
-                            }
-                        );
-                    }
-                    else
-                    {
-                        return StatusCode(500, roleResult.Errors);
-                    }
-                }
-                else
-                {
-                    return StatusCode(500, createdUser.Errors);
-                }
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e);
-            }
+            return BadRequest(result.Errors);
         }
 
         [Authorize(Roles = nameof(Roles.SuperAdmin))]
@@ -134,9 +87,9 @@ namespace Blog.WebApi.Controllers
                     new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                await _roleManager.CreateAsync(new ApplicationRole(UserRoles.Admin));
             if (!await _roleManager.RoleExistsAsync(UserRoles.User))
-                await _roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+                await _roleManager.CreateAsync(new ApplicationRole(UserRoles.User));
 
             if (await _roleManager.RoleExistsAsync(UserRoles.Admin))
             {
@@ -149,9 +102,20 @@ namespace Blog.WebApi.Controllers
 
         [Authorize(Roles = nameof(Roles.SuperAdmin))]
         [HttpGet]
+        [Route("GetAllRoles")]
         public IActionResult GetAllRoles()
         {
             var roles = _roleManager.Roles.ToList();
+            return Ok(roles);
+        }
+
+        [HttpGet]
+        [Route("CheckRoles")]
+        public IActionResult CheckRoles()
+        {
+            var roles = User.Claims
+                .Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
+                .Select(c => c.Value);
             return Ok(roles);
         }
 
@@ -162,7 +126,7 @@ namespace Blog.WebApi.Controllers
             if (!roleExist)
             {
                 //create the roles and seed them to the database: Question 1
-                var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                var roleResult = await _roleManager.CreateAsync(new ApplicationRole(roleName));
 
                 if (roleResult.Succeeded)
                 {
@@ -180,12 +144,17 @@ namespace Blog.WebApi.Controllers
         }
 
         // Get all users
+        [Authorize(Roles = "SuperAdmin")]
         [HttpGet]
         [Route("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _userManager.Users.ToListAsync();
-            return Ok(users);
+            var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            return Ok(roles);
         }
 
         // Add User to role
