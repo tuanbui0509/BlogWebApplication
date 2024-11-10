@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Blog.Application.Business.Authentication.Commands;
 using Blog.Application.Common.Dtos.Auth;
-using Blog.Application.Common.Interfaces;
 using Blog.Domain.Constants;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
@@ -17,11 +16,9 @@ namespace Blog.WebApi.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class UserController : ApiControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ITokenService _tokenService;
         private readonly SignInManager<ApplicationUser> _signinManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         protected readonly ILogger<UserController> _logger;
@@ -29,14 +26,12 @@ namespace Blog.WebApi.Controllers
 
         public UserController(
             UserManager<ApplicationUser> userManager,
-            ITokenService tokenService,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<ApplicationRole> roleManager,
             ILogger<UserController> logger,
             IMediator mediator)
         {
             _userManager = userManager;
-            _tokenService = tokenService;
             _signinManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
@@ -99,26 +94,6 @@ namespace Blog.WebApi.Controllers
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
-
-        [Authorize(Roles = nameof(Roles.SuperAdmin))]
-        [HttpGet]
-        [Route("GetAllRoles")]
-        public IActionResult GetAllRoles()
-        {
-            var roles = _roleManager.Roles.ToList();
-            return Ok(roles);
-        }
-
-        [HttpGet]
-        [Route("CheckRoles")]
-        public IActionResult CheckRoles()
-        {
-            var roles = User.Claims
-                .Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
-                .Select(c => c.Value);
-            return Ok(roles);
-        }
-
         [HttpPost]
         public async Task<IActionResult> CreateRole(string roleName)
         {
@@ -141,20 +116,6 @@ namespace Blog.WebApi.Controllers
             }
 
             return BadRequest(new { error = "Role already exist" });
-        }
-
-        // Get all users
-        [Authorize(Roles = "SuperAdmin")]
-        [HttpGet]
-        [Route("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var roles = User.Claims
-                .Where(c => c.Type == ClaimTypes.Role)
-                .Select(c => c.Value)
-                .ToList();
-
-            return Ok(roles);
         }
 
         // Add User to role
@@ -184,18 +145,6 @@ namespace Blog.WebApi.Controllers
             return BadRequest(new { error = "Unable to find user" });
         }
 
-        // Get specific user role
-        [HttpGet]
-        [Route("GetUserRoles")]
-        public async Task<IActionResult> GetUserRoles(string email)
-        {
-            // Resolve the user via their email
-            var user = await _userManager.FindByEmailAsync(email);
-            // Get the roles for the user
-            var roles = await _userManager.GetRolesAsync(user);
-            return Ok(roles);
-        }
-
         // Remove User to role
         [HttpPost]
         [Route("RemoveUserFromRole")]
@@ -221,6 +170,67 @@ namespace Blog.WebApi.Controllers
 
             // User doesn't exist
             return BadRequest(new { error = "Unable to find user" });
+        }
+
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            return Ok(users);
+        }
+
+        // 2. Custom Policy-based Authorization
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("GetAllRoles")]
+        public IActionResult GetAllRoles()
+        {
+            var roles = _roleManager.Roles.ToList();
+            return Ok(roles);
+        }
+
+        // 3. Checking roles programmatically within an action
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("GetUserRoles")]
+        public IActionResult GetUserRoles()
+        {
+            var roles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role) // Or use c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" if using custom claim
+                .Select(c => c.Value)
+                .ToList();
+
+            if (roles.Contains("SuperAdmin"))
+            {
+                // Logic specific to SuperAdmin users
+                return Ok("User is a SuperAdmin");
+            }
+            else if (roles.Contains("Admin"))
+            {
+                // Logic specific to Admin users
+                return Ok("User is an Admin");
+            }
+            else
+            {
+                return Ok("User has no specific role permissions");
+            }
+        }
+
+        // 4. Programmatic multi-role access within action
+        [Authorize]
+        [HttpGet("AdminOrUserAccess")]
+        public IActionResult AdminOrUserAccess()
+        {
+            var userRoles = User.Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            if (userRoles.Contains("Admin") || userRoles.Contains("User"))
+            {
+                return Ok("Access granted for Admin or User.");
+            }
+
+            return Unauthorized("Access denied.");
         }
     }
 }

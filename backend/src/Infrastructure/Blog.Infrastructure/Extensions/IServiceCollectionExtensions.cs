@@ -31,7 +31,6 @@ namespace Blog.Infrastructure.Extensions
                 .AddTransient<IDomainEventDispatcher, DomainEventDispatcher>()
                 .AddTransient<IDateTimeService, DateTimeService>()
                 .AddTransient<IEmailService, EmailService>()
-                .AddTransient<ITokenService, TokenService>()
                 .AddTransient<IAuthService, AuthService>()
                 .AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();
         }
@@ -62,7 +61,7 @@ namespace Blog.Infrastructure.Extensions
                     ValidAudience = configuration["JwtSettings:Audience"],
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        System.Text.Encoding.ASCII.GetBytes(configuration["JwtSettings:SigningKey"])
+                        System.Text.Encoding.UTF8.GetBytes(configuration["JwtSettings:SigningKey"])
                     ),
                     RoleClaimType = ClaimTypes.Role // Set custom role claim type
                 };

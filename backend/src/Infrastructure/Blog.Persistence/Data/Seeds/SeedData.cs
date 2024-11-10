@@ -1,8 +1,6 @@
-using System.Security.Claims;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Blog.Persistence.Data.Seeds
 {
@@ -21,7 +19,7 @@ namespace Blog.Persistence.Data.Seeds
 
         public async Task Initialize(IServiceProvider serviceProvider)
         {
-            await SetUpRoles();
+            // await SetUpRoles();
             // await SeedUsersAsync();
         }
 
@@ -29,31 +27,11 @@ namespace Blog.Persistence.Data.Seeds
         {
             foreach (var role in Enum.GetValues(typeof(Roles)).Cast<Roles>())
             {
-                var roleName = role.ToString(); // Convert enum to string
-                if (await roleManager.FindByNameAsync(roleName) == null)
+                var roleName = role.ToString();
+                var roleExists = await roleManager.RoleExistsAsync(roleName);
+                if (!roleExists)
                 {
-                    var applicationRole = new ApplicationRole
-                    {
-                        Name = roleName,
-                        Description= $"This is a {roleName}"
-                        // Optionally, add other properties like description or custom claims
-                    };
-
-                    await roleManager.CreateAsync(applicationRole);
-
-                    // Optionally, add custom claims for roles, e.g., "AdminPanelAccess" for SuperAdmin
-                    if (role == Roles.SuperAdmin)
-                    {
-                        await roleManager.AddClaimAsync(applicationRole, new Claim("Permission", "SuperAdminPanelAccess"));
-                    }
-                    if (role == Roles.Admin)
-                    {
-                        await roleManager.AddClaimAsync(applicationRole, new Claim("Permission", "AdminPanelAccess"));
-                    }
-                    if (role == Roles.User)
-                    {
-                        await roleManager.AddClaimAsync(applicationRole, new Claim("Permission", "UserPanelAccess"));
-                    }
+                    await roleManager.CreateAsync(new ApplicationRole { Name = roleName, Description = roleName });
                 }
             }
         }
@@ -78,7 +56,7 @@ namespace Blog.Persistence.Data.Seeds
                 Email = "superadmin@gmail.com",
                 FullName = "Super Admin User",
                 EmailConfirmed = true,
-                NormalizedEmail = "superadmin@gmail.com"
+                NormalizedEmail = "superadmin@gmail.com",
             };
             if (_userManager.Users.All(u => u.Id != defaultUser.Id))
             {
@@ -90,8 +68,6 @@ namespace Blog.Persistence.Data.Seeds
                     await _userManager.AddToRoleAsync(defaultUser, Roles.Admin.ToString());
                     await _userManager.AddToRoleAsync(defaultUser, Roles.SuperAdmin.ToString());
                 }
-                // Optionally, add claims to the user
-                await _userManager.AddClaimAsync(defaultUser, new Claim("Permission", "SuperAdminPanelAccess"));
             }
         }
 
@@ -114,7 +90,6 @@ namespace Blog.Persistence.Data.Seeds
                     await _userManager.AddToRoleAsync(defaultUser, Roles.User.ToString());
                     await _userManager.AddToRoleAsync(defaultUser, Roles.Admin.ToString());
                 }
-                await _userManager.AddClaimAsync(defaultUser, new Claim("Permission", "AdminPanelAccess"));
             }
         }
 
@@ -136,7 +111,6 @@ namespace Blog.Persistence.Data.Seeds
                     await _userManager.CreateAsync(defaultUser, "123Pa$$word!");
                     await _userManager.AddToRoleAsync(defaultUser, Roles.User.ToString());
                 }
-                await _userManager.AddClaimAsync(defaultUser, new Claim("Permission", "UserPanelAccess"));
             }
         }
     }

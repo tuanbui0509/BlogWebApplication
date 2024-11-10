@@ -42,11 +42,6 @@ builder.Services.AddSwaggerGen(option =>
 });
 
 // builder.Services.AddAuthorizationBuilder();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("SuperAdminOnly", policy =>
-        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "SuperAdmin"));
-});
 
 // For Identity
 builder.Services
@@ -92,7 +87,5 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-var seed = app.Services.CreateScope().ServiceProvider.GetRequiredService<SeedData>();
 
 app.Run();
