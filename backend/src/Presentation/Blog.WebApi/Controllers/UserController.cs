@@ -5,6 +5,7 @@ using Blog.Domain.Constants;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -19,33 +20,41 @@ namespace Blog.WebApi.Controllers
     public class UserController : ApiControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signinManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         protected readonly ILogger<UserController> _logger;
         private readonly IMediator _mediator;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
             RoleManager<ApplicationRole> roleManager,
             ILogger<UserController> logger,
             IMediator mediator)
         {
             _userManager = userManager;
-            _signinManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
             _mediator = mediator;
         }
 
         [AllowAnonymous]
-        [HttpPost("authenticate")]
+        [HttpPost("login")]
         public async Task<IActionResult> Authenticate([FromBody] LoginCommand command)
         {
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
                 return Ok(result);
             return Unauthorized(result.Errors);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand request)
+        {
+            var result = await _mediator.Send(new RefreshTokenCommand { RefreshToken = request.RefreshToken });
+
+            if (!result.IsSuccess)
+                return Unauthorized(result.Errors);
+
+            return Ok(new { result.AccessToken, result.RefreshToken });
         }
 
         [AllowAnonymous]
@@ -172,7 +181,7 @@ namespace Blog.WebApi.Controllers
             return BadRequest(new { error = "Unable to find user" });
         }
 
-        [Authorize(Roles = "SuperAdmin")]
+        [Authorize(Roles = $"{nameof(Roles.SuperAdmin)},{nameof(Roles.Admin)}")]
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {

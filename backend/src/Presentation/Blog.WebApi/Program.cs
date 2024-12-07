@@ -4,6 +4,8 @@ using Blog.Infrastructure.Extensions;
 using Blog.Persistence.Data.Contexts;
 using Blog.Persistence.Data.Seeds;
 using Blog.Persistence.Extensions;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
@@ -41,22 +43,66 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-// builder.Services.AddAuthorizationBuilder();
-
 // For Identity
-builder.Services
-    .AddIdentityCore<ApplicationUser>()
-    .AddRoles<ApplicationRole>()
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequiredLength = 8;
+                options.SignIn.RequireConfirmedEmail = true;
+                options.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+            })
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddApiEndpoints();
+    .AddDefaultTokenProviders();
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // Replace with your frontend URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); // Allow cookies for authentication
+        });
+});
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.SameSite = SameSiteMode.None; // Required for third-party OAuth providers
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure secure cookies over HTTPS
+});
+
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole();
+    logging.AddDebug();
+});
+builder.Services.Configure<GoogleOptions>(GoogleDefaults.AuthenticationScheme, options =>
+{
+    options.Events = new OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            context.HandleResponse();
+            Console.WriteLine($"Authentication error: {context.Failure?.Message}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
+
 
 builder.Services.AddApplicationLayer();
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddPersistenceLayer(builder.Configuration);
 builder.Services.AddControllers().AddNewtonsoftJson();
 var app = builder.Build();
+// global cors policy
+app.UseCors("AllowSpecificOrigins");
+
 // Use SeedData to seed database when the application starts
 using (var scope = app.Services.CreateScope())
 {
@@ -64,21 +110,13 @@ using (var scope = app.Services.CreateScope())
     var seedData = serviceProvider.GetRequiredService<SeedData>();
     await seedData.Initialize(serviceProvider);
 }
-// global cors policy
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-
-if (app.Environment.IsDevelopment())
-{
     app.UseDeveloperExceptionPage();
 }
 
