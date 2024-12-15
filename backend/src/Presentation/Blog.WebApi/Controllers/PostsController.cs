@@ -1,91 +1,84 @@
+using System.Net;
 using System.Security.Claims;
 using Blog.Application.Business.Posts.Commands.CreatePost;
 using Blog.Application.Business.Posts.Queries.GetAllPosts;
-using Blog.Domain.Enums;
+using Blog.Application.Business.Posts.Queries.GetPostById;
 using Blog.Domain.Identity;
-using Blog.Shared;
+using Blog.Shared.Result;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace Blog.WebApi.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = nameof(Roles.Admin) + "," + nameof(Roles.SuperAdmin) + "," + nameof(Roles.User))]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ApiController]
+    [Route("api/[controller]")]
     public class PostsController : ApiControllerBase
     {
         private readonly IMediator _mediator;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly Serilog.ILogger _logger;
 
-
-        public PostsController(IMediator mediator, UserManager<ApplicationUser> userManager)
+        public PostsController(IMediator mediator,
+            UserManager<ApplicationUser> userManager)
         {
             _mediator = mediator;
             _userManager = userManager;
+            _logger = Log.ForContext<PostsController>(); // Serilog logging context
         }
 
-        [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
-            var result = await _mediator.Send(new GetAllPostsQuery());
+            _logger.Information("Starting get all posts");
+            // caching
+            var result = await _mediator.Send(new GetAllPostsQuery() { PageNumber = pageNumber, PageSize = pageSize });
             if (!result.Success)
             {
-                return StatusCode(result.StatusCode, result);  // Return failure result
+                _logger.Error("Error while get all posts", result);
+                return BadRequest(result.Message);  // Return failure result
             }
             return Ok(result);  // Return success result
         }
 
-        // [HttpGet("{id}")]
-        // public async Task<ActionResult<Result<GetPostByIdDto>>> GetPlayersById(int id)
-        // {
-        //     return await _mediator.Send(new GetPlayerByIdQuery(id));
-        // }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPlayersById(Guid id)
+        {
+            _logger.Information($"Starting get Post:{id}");
+            var post = await _mediator.Send(new GetPostByIdQuery(id));
+            if (post.Data == null)
+            {
+                _logger.Error($"Error while get Post:{id}", post);
+                return StatusCode((int)HttpStatusCode.BadRequest, new FailureResult($"Cannot find posts by postId {id}", (int)HttpStatusCode.BadRequest));  // Return failure result
+            }
+            _logger.Information($"Get Post:{id} successfully");
+            return Ok(post);
+        }
 
-        // [HttpGet]
-        // [Route("club/{clubId}")]
-        // public async Task<ActionResult<Result<List<GetPlayersByClubDto>>>> GetPlayersByClub(int clubId)
-        // {
-        //     return await _mediator.Send(new GetPlayersByClubQuery(clubId));
-        // }
+        [HttpPost]
+        public async Task<ActionResult<Guid>> Create(CreatePostCommand command)
+        {
+            _logger.Information("Starting create posts");
+            var user = User.Identity;
 
-        // [HttpGet]
-        // [Route("paged")]
-        // public async Task<ActionResult<PaginatedResult<GetPlayersWithPaginationDto>>> GetPlayersWithPagination([FromQuery] GetPlayersWithPaginationQuery query)
-        // {
-        //     var validator = new GetPlayersWithPaginationValidator();
+            if (user == null || !user.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
 
-        //     // Call Validate or ValidateAsync and pass the object which needs to be validated
-        //     var result = validator.Validate(query);
+            var claimsIdentity = User.Identity as ClaimsIdentity;
+            var userIdClaim = claimsIdentity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userNameClaim = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
 
-        //     if (result.IsValid)
-        //     {
-        //         return await _mediator.Send(query);
-        //     }
+            command.UserId = userIdClaim;
+            command.UserName = userNameClaim;
 
-        //     var errorMessages = result.Errors.Select(x => x.ErrorMessage).ToList();
-        //     return BadRequest(errorMessages);
-        // }
-
-        // [HttpPost]
-        // public async Task<ActionResult<Guid>> Create(CreatePostCommand command)
-        // {
-        //     var user = User.Identity;
-
-        //     if (user == null || !user.IsAuthenticated)
-        //     {
-        //         return Unauthorized();
-        //     }
-        //     var claimsIdentity = User.Identity as ClaimsIdentity;
-        //     var userIdClaim = claimsIdentity?.FindFirst("Id")?.Value;
-        //     var userNameClaim = claimsIdentity?.FindFirst(ClaimTypes.Name)?.Value;
-
-        //     command.UserId = userIdClaim;
-        //     command.UserName = userNameClaim;
-
-        //     return await _mediator.Send(command);
-        // }
+            return await _mediator.Send(command);
+        }
 
         // [HttpPut("{id}")]
         // public async Task<ActionResult<Result<int>>> Update(int id, UpdatePlayerCommand command)

@@ -13,7 +13,7 @@ namespace Blog.Persistence.Repositories
             _repository = repository;
         }
 
-        public async Task<Post?> GetPostByIdAsync(Guid postId)
+        public async Task<Post> GetPostByIdAsync(Guid postId)
         {
             return await _repository.Entities.Where(x => x.Id == postId).FirstOrDefaultAsync();
         }

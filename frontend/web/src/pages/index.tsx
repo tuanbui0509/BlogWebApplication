@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 const Home = () => {
@@ -16,6 +18,14 @@ const Home = () => {
     // You can fetch user info or token verification here if needed
   }, []);
 
+  const router = useRouter();
+
+  function goToDetailPage() {
+    router.push({
+      pathname: "/posts/[postId]",
+      query: { postId: 123, ref: "social" }, // optional query parameters
+    });
+  }
   return (
     <div>
       <h1>Social Login Example</h1>
@@ -23,6 +33,12 @@ const Home = () => {
       <button onClick={() => login("Facebook")}>Login with Facebook</button>
       <button onClick={() => login("GitHub")}>Login with GitHub</button>
       {user && <button onClick={logout}>Logout</button>}
+
+      <div>
+        <Link href="/about">About</Link>
+        <Link href="/posts/create">Create</Link>
+        <button onClick={goToDetailPage}>Detail Page</button>
+      </div>
     </div>
   );
 };

@@ -1,16 +1,12 @@
 using Blog.Application.Common.Mappings;
+using Blog.Application.Dtos.Post;
 using Blog.Domain.Entities;
 
 namespace Blog.Application.Business.Posts.Queries.GetAllPosts
 {
-    public class GetAllPostsDto : IMapFrom<Post>
+    public class GetAllPostsDto : PostDto, IMapFrom<Post>
     {
-        public Guid Id { get; init; }
-        public string? Title { get; init; }
-        public string? PostContents { get; init; }
-        public string? Slug { get; init; }
-
         // Foreign key properties
-        public string? UserId { get; init; }
+        public string AuthorId { get; init; }
     }
 }

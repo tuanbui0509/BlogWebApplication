@@ -32,7 +32,7 @@ namespace Blog.Infrastructure.Authentication
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("username", user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName)
             };
 
             var userClaims = await _userManager.GetClaimsAsync(user);

@@ -1,6 +1,6 @@
-using Blog.Application.Common.Dtos.Email;
+using Blog.Application.Dtos.Email;
 
-namespace Blog.Application.Common.Interfaces
+namespace Blog.Application.Interfaces
 {
     public interface IEmailService
     {

@@ -1,6 +1,6 @@
 using System.Net.Mail;
-using Blog.Application.Common.Dtos.Email;
-using Blog.Application.Common.Interfaces;
+using Blog.Application.Dtos.Email;
+using Blog.Application.Interfaces;
 
 namespace Blog.Infrastructure.Services
 {

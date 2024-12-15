@@ -1,13 +1,16 @@
+using Blog.Application.Business.Posts.Commands.CreatePost;
 using Blog.Application.Common.Extensions;
 using Blog.Domain.Identity;
 using Blog.Infrastructure.Extensions;
 using Blog.Persistence.Data.Contexts;
 using Blog.Persistence.Data.Seeds;
 using Blog.Persistence.Extensions;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +60,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Add Cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
@@ -69,17 +73,21 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Add Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Cookie.SameSite = SameSiteMode.None; // Required for third-party OAuth providers
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure secure cookies over HTTPS
 });
 
-builder.Services.AddLogging(logging =>
-{
-    logging.AddConsole();
-    logging.AddDebug();
-});
+// Set up Serilog logging
+builder.Host.UseSerilog((context, services, configuration) =>
+    configuration
+        .ReadFrom.Configuration(context.Configuration)  // Read settings from appsettings.json
+        .WriteTo.Console()
+        .WriteTo.File("logs/blogWebLog.txt", rollingInterval: RollingInterval.Day)
+);
+
 builder.Services.Configure<GoogleOptions>(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.Events = new OAuthEvents
@@ -93,12 +101,11 @@ builder.Services.Configure<GoogleOptions>(GoogleDefaults.AuthenticationScheme, o
     };
 });
 
-
-
 builder.Services.AddApplicationLayer();
 builder.Services.AddInfrastructureLayer(builder.Configuration);
 builder.Services.AddPersistenceLayer(builder.Configuration);
 builder.Services.AddControllers().AddNewtonsoftJson();
+
 var app = builder.Build();
 // global cors policy
 app.UseCors("AllowSpecificOrigins");
@@ -110,7 +117,6 @@ using (var scope = app.Services.CreateScope())
     var seedData = serviceProvider.GetRequiredService<SeedData>();
     await seedData.Initialize(serviceProvider);
 }
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

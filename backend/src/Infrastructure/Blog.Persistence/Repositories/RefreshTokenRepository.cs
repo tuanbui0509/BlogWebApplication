@@ -20,7 +20,7 @@ namespace Blog.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<RefreshToken?> GetByTokenAsync(string token)
+        public async Task<RefreshToken> GetByTokenAsync(string token)
         {
             return await _context.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == token);
         }

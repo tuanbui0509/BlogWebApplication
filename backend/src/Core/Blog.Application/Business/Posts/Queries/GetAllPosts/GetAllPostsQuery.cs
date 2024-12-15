@@ -1,32 +1,21 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Blog.Application.Common.Interfaces.Repositories;
-using Blog.Domain.Entities;
-using Blog.Shared.Result;
+using Blog.Shared.Pagination;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Business.Posts.Queries.GetAllPosts
 {
-    public record GetAllPostsQuery : IRequest<TResult<List<GetAllPostsDto>>>;
-    internal class GetAllPostsQueryHandler : IRequestHandler<GetAllPostsQuery, TResult<List<GetAllPostsDto>>>
+    public class GetAllPostsQuery : IRequest<PaginatedResult<GetAllPostsDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-
-        public GetAllPostsQueryHandler(IMapper mapper, IUnitOfWork unitOfWork)
+        public GetAllPostsQuery()
         {
-            _mapper = mapper;
-            _unitOfWork = unitOfWork;
         }
 
-        public async Task<TResult<List<GetAllPostsDto>>> Handle(GetAllPostsQuery request, CancellationToken cancellationToken)
+        public GetAllPostsQuery(int pageNumber, int pageSize)
         {
-            var posts = await _unitOfWork.Repository<Post>().Entities
-                   .ProjectTo<GetAllPostsDto>(_mapper.ConfigurationProvider)
-                   .AsNoTracking()
-                   .ToListAsync(cancellationToken);
-            return new DataResult<List<GetAllPostsDto>>(posts, "Sample found");
+            PageNumber = pageNumber;
+            PageSize = pageSize;
         }
+
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
     }
 }

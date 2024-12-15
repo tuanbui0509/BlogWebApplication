@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Blog.Application.Common.Mappings;
 using Blog.Domain.Entities;
+using Blog.Domain.Enums;
 using MediatR;
 
 namespace Blog.Application.Business.Posts.Commands.CreatePost
@@ -10,11 +11,14 @@ namespace Blog.Application.Business.Posts.Commands.CreatePost
         public string Title { get; set; }
         public string PostContents { get; set; }
         public string Slug { get; set; }
+        // public DateTime PublishDate { get; set; } after
+        public PublishState IsPublished { get; set; }
+        public List<string> Tags { get; set; }
 
         [JsonIgnore]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
 
         [JsonIgnore]
-        public string? UserName { get; set; }
+        public string UserName { get; set; }
     }
 }

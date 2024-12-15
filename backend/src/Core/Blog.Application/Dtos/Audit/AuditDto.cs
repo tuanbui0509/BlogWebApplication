@@ -1,8 +1,6 @@
-using Blog.Domain.Common.Interfaces;
-
-namespace Blog.Domain.Common
+namespace Blog.Application.Dtos.Audit
 {
-    public class BaseAuditableEntity : BaseEntity, IAuditableEntity
+    public class AuditDto
     {
         public string CreatedBy { get; set; }
         public DateTime? CreatedDate { get; set; }

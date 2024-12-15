@@ -46,5 +46,11 @@ namespace Blog.Persistence.Repositories
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }
+
+        public async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbContext.Set<T>().AddRangeAsync(entities);
+            return entities;
+        }
     }
 }

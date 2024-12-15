@@ -5,7 +5,6 @@ using Blog.Domain.Constants;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -1,18 +1,15 @@
-using System.Security.Claims;
 using Blog.Application.Abstractions;
 using Blog.Application.Common.Interfaces;
+using Blog.Application.Interfaces;
 using Blog.Application.Services;
 using Blog.Domain.Common;
 using Blog.Domain.Common.Interfaces;
-using Blog.Domain.Identity;
 using Blog.Infrastructure.Authentication;
 using Blog.Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -25,6 +22,7 @@ namespace Blog.Infrastructure.Extensions
         {
             services.AddServices();
             services.ConfigureJwt(configuration);
+            services.AddRedisCache(configuration);
         }
 
         private static void AddServices(this IServiceCollection services)
@@ -36,6 +34,15 @@ namespace Blog.Infrastructure.Extensions
                 .AddTransient<IEmailService, EmailService>()
                 .AddTransient<IAuthService, AuthService>()
                 .AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();
+        }
+
+        // Add redis cache
+        private static void AddRedisCache(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379";
+            });
         }
 
         private static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)

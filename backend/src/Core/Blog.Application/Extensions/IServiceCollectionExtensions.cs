@@ -1,5 +1,7 @@
 using System.Reflection;
+using Blog.Application.Business.Posts.Commands.CreatePost;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blog.Application.Common.Extensions
@@ -26,6 +28,14 @@ namespace Blog.Application.Common.Extensions
         private static void AddValidators(this IServiceCollection services)
         {
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        }        
+
+            // Register FluentValidation for ASP.NET Core
+            services.AddFluentValidationAutoValidation()
+                    .AddFluentValidationClientsideAdapters();  // This enables FluentValidation clients-side adapters if needed
+
+            // Register validators
+            services.AddValidatorsFromAssemblyContaining<CreatePostCommandValidator>();
+            // Validator Request
+        }
     }
 }
