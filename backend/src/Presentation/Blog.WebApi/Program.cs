@@ -1,11 +1,9 @@
-using Blog.Application.Business.Posts.Commands.CreatePost;
 using Blog.Application.Common.Extensions;
 using Blog.Domain.Identity;
 using Blog.Infrastructure.Extensions;
 using Blog.Persistence.Data.Contexts;
 using Blog.Persistence.Data.Seeds;
 using Blog.Persistence.Extensions;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +13,6 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(option =>

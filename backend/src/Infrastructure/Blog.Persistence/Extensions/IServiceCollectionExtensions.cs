@@ -36,7 +36,6 @@ namespace Blog.Persistence.Extensions
             services
                 .AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork))
                 .AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>))
-                .AddTransient<IPostRepository, PostRepository>()
                 .AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
         }
         private static void AddSeedData(this IServiceCollection services)

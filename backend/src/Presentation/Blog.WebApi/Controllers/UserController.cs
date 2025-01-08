@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Blog.WebApi.Controllers
 {
@@ -20,18 +21,17 @@ namespace Blog.WebApi.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        protected readonly ILogger<UserController> _logger;
+        private readonly Serilog.ILogger _logger;
         private readonly IMediator _mediator;
 
         public UserController(
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            ILogger<UserController> logger,
             IMediator mediator)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-            _logger = logger;
+            _logger = Log.ForContext<PostsController>();
             _mediator = mediator;
         }
 
@@ -113,12 +113,12 @@ namespace Blog.WebApi.Controllers
 
                 if (roleResult.Succeeded)
                 {
-                    _logger.LogInformation(1, "Roles Added");
+                    _logger.Information("Roles Added");
                     return Ok(new { result = $"Role {roleName} added successfully" });
                 }
                 else
                 {
-                    _logger.LogInformation(2, "Error");
+                    _logger.Information("Error");
                     return BadRequest(new { error = $"Issue adding the new {roleName} role" });
                 }
             }
@@ -139,12 +139,12 @@ namespace Blog.WebApi.Controllers
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation(1, $"User {user.Email} added to the {roleName} role");
+                    _logger.Information($"User {user.Email} added to the {roleName} role");
                     return Ok(new { result = $"User {user.Email} added to the {roleName} role" });
                 }
                 else
                 {
-                    _logger.LogInformation(1, $"Error: Unable to add user {user.Email} to the {roleName} role");
+                    _logger.Information($"Error: Unable to add user {user.Email} to the {roleName} role");
                     return BadRequest(new { error = $"Error: Unable to add user {user.Email} to the {roleName} role" });
                 }
             }
@@ -166,12 +166,12 @@ namespace Blog.WebApi.Controllers
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation(1, $"User {user.Email} removed from the {roleName} role");
+                    _logger.Information($"User {user.Email} removed from the {roleName} role");
                     return Ok(new { result = $"User {user.Email} removed from the {roleName} role" });
                 }
                 else
                 {
-                    _logger.LogInformation(1, $"Error: Unable to removed user {user.Email} from the {roleName} role");
+                    _logger.Information($"Error: Unable to removed user {user.Email} from the {roleName} role");
                     return BadRequest(new { error = $"Error: Unable to removed user {user.Email} from the {roleName} role" });
                 }
             }

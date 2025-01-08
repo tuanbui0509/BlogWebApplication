@@ -15,7 +15,7 @@ namespace Blog.Application.Dtos.Auth
         public string UserId { get; set; }
 
         // Username of the authenticated user
-        public string? Username { get; set; }
+        public string Username { get; set; }
 
         // Roles assigned to the user
         public List<string> Roles { get; set; } = new List<string>();

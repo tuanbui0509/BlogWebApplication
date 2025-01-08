@@ -5,8 +5,6 @@ using MediatR;
 using System.Text.Json;
 using Blog.Application.Business.Posts.Queries.GetAllPosts;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace Blog.Application.Business.Posts.Handlers
 {
@@ -28,10 +26,14 @@ namespace Blog.Application.Business.Posts.Handlers
         {
             try
             {
-                // Handle tags (ensure they exist or create new ones)
                 var tags = await GetOrCreateTagsAsync(command.Tags, command.UserId, cancellationToken);
                 // Map command to entity
                 var entity = MapToPost(command, tags);
+
+                await _unitOfWork.Repository<Post>().AddAsync(entity);
+                entity.AddDomainEvent(new PostCreatedEvent(entity));
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _logger.Information("Create post successful!");
                 // caching
                 var cachePosts = await _cache.GetStringAsync("Posts");
                 if (cachePosts == null)
@@ -41,8 +43,9 @@ namespace Blog.Application.Business.Posts.Handlers
                 var posts = JsonSerializer.Deserialize<List<GetAllPostsDto>>(cachePosts);
                 posts.Add(new GetAllPostsDto()
                 {
+                    Id= entity.Id,
                     Title = command.Title,
-                    Slug = command.Slug,
+                    Slug = GenerateSlug(command.Slug),
                     PostContents = command.PostContents,
                     IsPublished = command.IsPublished,
                     AuthorId = command.UserId,
@@ -53,10 +56,6 @@ namespace Blog.Application.Business.Posts.Handlers
                     UpdatedBy = command.UserName
                 });
                 await _cache.SetStringAsync($"Posts", JsonSerializer.Serialize(posts));
-
-                await _unitOfWork.Repository<Post>().AddAsync(entity);
-                entity.AddDomainEvent(new PostCreatedEvent(entity));
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 return entity.Id;
             }
             catch (Exception ex)
@@ -72,7 +71,7 @@ namespace Blog.Application.Business.Posts.Handlers
             return new Post
             {
                 Title = command.Title,
-                Slug = command.Slug,
+                Slug = GenerateSlug(command.Slug),
                 PostContents = command.PostContents,
                 CreatedBy = command.UserName,
                 CreatedDate = DateTime.UtcNow,

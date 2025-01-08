@@ -20,17 +20,14 @@ namespace Blog.WebApi.Controllers
     public class PostsController : ApiControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly Serilog.ILogger _logger;
 
-        public PostsController(IMediator mediator,
-            UserManager<ApplicationUser> userManager)
+        public PostsController(IMediator mediator)
         {
             _mediator = mediator;
-            _userManager = userManager;
             _logger = Log.ForContext<PostsController>(); // Serilog logging context
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
