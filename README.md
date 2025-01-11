@@ -52,6 +52,7 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 #### CleanArchitectureDemo.WebAPI project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
+<!-- Note Security for sentensenive -->
 
 ### Front-end User page: NextJS => For SEO
 ### Front-end Admin page: ReactJS

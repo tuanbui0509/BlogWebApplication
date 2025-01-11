@@ -1,5 +1,6 @@
 using Blog.Application.Abstractions;
 using Blog.Application.Common.Interfaces;
+using Blog.Application.Helpers;
 using Blog.Application.Interfaces;
 using Blog.Application.Services;
 using Blog.Domain.Common;
@@ -10,6 +11,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -33,7 +35,8 @@ namespace Blog.Infrastructure.Extensions
                 .AddTransient<IDateTimeService, DateTimeService>()
                 .AddTransient<IEmailService, EmailService>()
                 .AddTransient<IAuthService, AuthService>()
-                .AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();
+                .AddTransient<IJwtTokenGenerator, JwtTokenGenerator>()
+                .AddTransient<IUrlHelperService, UrlHelperService>();
         }
 
         // Add redis cache
@@ -99,6 +102,12 @@ namespace Blog.Infrastructure.Extensions
                 options.ClientId = configuration["Authentication:Google:ClientId"];
                 options.ClientSecret = configuration["Authentication:Google:ClientSecret"];
                 options.CallbackPath = configuration["Authentication:Google:CallbackPath"];
+            });
+
+            // Set email confirmation lifetime for registration
+            services.Configure<DataProtectionTokenProviderOptions>(options =>
+            {
+                options.TokenLifespan = TimeSpan.FromMinutes(1); // Set token expiration time to 5 minutes
             });
         }
     }

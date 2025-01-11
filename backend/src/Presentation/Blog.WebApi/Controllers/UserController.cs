@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text;
 using Blog.Application.Business.Authentication.Commands;
 using Blog.Application.Common.Dtos.Auth;
 using Blog.Domain.Constants;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -62,7 +64,7 @@ namespace Blog.WebApi.Controllers
         {
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
-                return Ok(new { Token = result.AccessToken });
+                return Ok("Registration successful. Please check your email to confirm your account.");
 
             return BadRequest(result.Errors);
         }
@@ -239,6 +241,28 @@ namespace Blog.WebApi.Controllers
             }
 
             return Unauthorized("Access denied.");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+                return BadRequest("Invalid email confirmation request.");
+            
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("User not found.");
+
+            // Decode the token
+            token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!result.Succeeded)
+                return BadRequest("Email confirmation failed.");
+
+            return Ok("Email confirmed successfully.");
         }
     }
 }

@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "dotnet",
+      "task": "watch Blog.WebApi",
+      "file": "/Users/tuanbui/Data/Project/BlogWebApplication/backend/src/Presentation/Blog.WebApi/Blog.WebApi.csproj",
+      "problemMatcher": [],
+      "label": "dotnet: watch Blog.WebApi"
+    }
+  ]
+}

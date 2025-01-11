@@ -69,6 +69,7 @@ builder.Services.AddCors(options =>
                   .AllowCredentials(); // Allow cookies for authentication
         });
 });
+builder.Services.AddHttpContextAccessor();
 
 // Add Cookies
 builder.Services.ConfigureApplicationCookie(options =>

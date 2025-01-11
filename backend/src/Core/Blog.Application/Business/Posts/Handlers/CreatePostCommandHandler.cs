@@ -5,6 +5,9 @@ using MediatR;
 using System.Text.Json;
 using Blog.Application.Business.Posts.Queries.GetAllPosts;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper.QueryableExtensions;
+using AutoMapper;
 
 namespace Blog.Application.Business.Posts.Handlers
 {
@@ -13,13 +16,14 @@ namespace Blog.Application.Business.Posts.Handlers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDistributedCache _cache;
         private readonly Serilog.ILogger _logger;
+        private readonly IMapper _mapper;
 
-
-        public CreatePostCommandHandler(IUnitOfWork unitOfWork, IDistributedCache cache, Serilog.ILogger logger)
+        public CreatePostCommandHandler(IUnitOfWork unitOfWork, IDistributedCache cache, Serilog.ILogger logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _cache = cache;
             _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<Guid> Handle(CreatePostCommand command, CancellationToken cancellationToken)
@@ -35,26 +39,16 @@ namespace Blog.Application.Business.Posts.Handlers
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _logger.Information("Create post successful!");
                 // caching
-                var cachePosts = await _cache.GetStringAsync("Posts");
-                if (cachePosts == null)
-                {
-                    cachePosts = JsonSerializer.Serialize(new List<GetAllPostsDto>());
-                }
-                var posts = JsonSerializer.Deserialize<List<GetAllPostsDto>>(cachePosts);
-                posts.Add(new GetAllPostsDto()
-                {
-                    Id= entity.Id,
-                    Title = command.Title,
-                    Slug = GenerateSlug(command.Slug),
-                    PostContents = command.PostContents,
-                    IsPublished = command.IsPublished,
-                    AuthorId = command.UserId,
-                    Tags = command.Tags,
-                    CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow,
-                    CreatedBy = command.UserName,
-                    UpdatedBy = command.UserName
-                });
+                await _cache.RemoveAsync("Posts", cancellationToken);
+                var posts = await _unitOfWork.Repository<Post>()
+                            .Entities
+                            .AsQueryable()
+                            .Include(post => post.PostTags)
+                            .ThenInclude(postTag => postTag.Tag) // Navigate through PostTags to Tags
+                            .ProjectTo<GetAllPostsDto>(_mapper.ConfigurationProvider)
+                            .AsNoTracking()
+                            .OrderByDescending(post => post.UpdatedDate)
+                            .ToListAsync(cancellationToken);
                 await _cache.SetStringAsync($"Posts", JsonSerializer.Serialize(posts));
                 return entity.Id;
             }
@@ -63,7 +57,6 @@ namespace Blog.Application.Business.Posts.Handlers
                 _logger.Error(ex, "Error creating post");
                 throw;
             }
-
         }
 
         private static Post MapToPost(CreatePostCommand command, List<Tag> existingTags)
@@ -100,10 +93,6 @@ namespace Blog.Application.Business.Posts.Handlers
             CancellationToken cancellationToken)
         {
             var existingTags = await _unitOfWork.Repository<Tag>().GetAllAsync();
-            // Fetch existing tags
-            // var existingTags = _unitOfWork.Repository<Tag>().Entities.AsEnumerable()
-            //     .Where(t => command.Tags.Contains(t.TagName))
-            //     .ToList();
             existingTags = existingTags.Where(t => tagNames.Contains(t.TagName)).ToList();
             var newTagNames = tagNames
                 .Except(existingTags.Select(t => t.TagName))

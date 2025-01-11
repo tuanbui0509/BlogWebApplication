@@ -25,7 +25,7 @@ namespace Blog.WebApi.Controllers
         public PostsController(IMediator mediator)
         {
             _mediator = mediator;
-            _logger = Log.ForContext<PostsController>(); // Serilog logging context
+            _logger = Log.ForContext<PostsController>();
         }
         [AllowAnonymous]
         [HttpGet]
@@ -37,9 +37,9 @@ namespace Blog.WebApi.Controllers
             if (!result.Success)
             {
                 _logger.Error("Error while get all posts", result);
-                return BadRequest(result.Message);  // Return failure result
+                return BadRequest(result.Message);
             }
-            return Ok(result);  // Return success result
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

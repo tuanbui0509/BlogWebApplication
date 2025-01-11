@@ -1,5 +1,9 @@
 using System.Reflection;
 using AutoMapper;
+using Blog.Application.Business.Posts.Queries.GetAllPosts;
+using Blog.Application.Dtos.Post;
+using Blog.Application.Dtos.Tag;
+using Blog.Domain.Entities;
 
 namespace Blog.Application.Common.Mappings
 {
@@ -8,6 +12,14 @@ namespace Blog.Application.Common.Mappings
         public MappingProfile()
         {
             ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
+            
+            CreateMap<PostDto, GetAllPostsDto>()
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags));
+            
+            CreateMap<Tag, TagDto>();
+
+            CreateMap<Post, GetAllPostsDto>()
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.PostTags.Select(pt => pt.Tag)));
         }
         private void ApplyMappingsFromAssembly(Assembly assembly)
         {

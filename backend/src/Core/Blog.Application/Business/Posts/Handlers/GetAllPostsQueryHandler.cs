@@ -46,16 +46,23 @@ namespace Blog.Application.Business.Posts.Handlers
                 return PaginatedResult<GetAllPostsDto>.Successful(posts, request.PageNumber, totalItems, request.PageSize);
             }
 
-            posts = await _unitOfWork.Repository<Post>().Entities.AsQueryable()
-                   .ProjectTo<GetAllPostsDto>(_mapper.ConfigurationProvider)
-                   .AsNoTracking()
-                   .OrderByDescending(x => x.UpdatedDate)
-                   .Skip((request.PageNumber - 1) * request.PageSize)
-                   .Take(request.PageSize)
-                   .ToListAsync(cancellationToken);
+            posts = await _unitOfWork.Repository<Post>()
+                            .Entities
+                            .AsQueryable()
+                            .Include(post => post.PostTags)
+                            .ThenInclude(postTag => postTag.Tag) // Navigate through PostTags to Tags
+                            .ProjectTo<GetAllPostsDto>(_mapper.ConfigurationProvider)
+                            .AsNoTracking()
+                            .OrderByDescending(post => post.UpdatedDate)
+                            .ToListAsync(cancellationToken);
 
             // Cache the post
             await _cache.SetStringAsync($"Posts", JsonSerializer.Serialize(posts));
+            // Paging
+            posts = posts
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize).ToList();
+
             return PaginatedResult<GetAllPostsDto>.Successful(posts, request.PageNumber, posts.Count(), request.PageSize);
         }
     }
