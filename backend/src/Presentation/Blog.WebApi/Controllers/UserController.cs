@@ -76,7 +76,7 @@ namespace Blog.WebApi.Controllers
         {
             var userExists = await _userManager.FindByNameAsync(model.Username);
             if (userExists != null)
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
+                return BadRequest(new { Status = "Error", Message = "User already exists!" });
 
             ApplicationUser user = new ApplicationUser()
             {
@@ -87,8 +87,7 @@ namespace Blog.WebApi.Controllers
             };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
+                return BadRequest(
                     new { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
             if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
@@ -249,7 +248,7 @@ namespace Blog.WebApi.Controllers
         {
             if (userId == null || token == null)
                 return BadRequest("Invalid email confirmation request.");
-            
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound("User not found.");
@@ -264,5 +263,43 @@ namespace Blog.WebApi.Controllers
 
             return Ok("Email confirmed successfully.");
         }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyTwoFactorCode(EnableTwoFactorCodeCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (result.Success)
+                return Ok(result);
+            return BadRequest(result.Message);
+        }
+
+        [HttpPost("disable-2fa")]
+        public async Task<IActionResult> DisableTwoFactorAuthentication()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Authenticate));
+            }
+
+            // Disable 2FA for the user
+            var result = await _userManager.SetTwoFactorEnabledAsync(user, false);
+            if (result.Succeeded)
+            {
+                return Ok("Disable successful");
+            }
+
+            return BadRequest("An error occurred while disabling 2FA.");
+        }
+
+        [HttpPost("enable-2fa")]
+        public async Task<IActionResult> EnableTwoFactorAuthentication(TwoFactorCodeCommand command)
+        {
+            var result = await _mediator.Send(command);
+            if (result.Success)
+                return Ok(result);
+            return BadRequest(result.Message);
+        }
+
     }
 }

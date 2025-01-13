@@ -1,0 +1,4 @@
+2025-01-13 22:23:58.020 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-01-13 22:24:03.760 +07:00 [INF] Email sent to tuanbui0509@gmail.com with subject:2025-01-13 22:24:03.760 +07:00 [INF] Email sent to tu2025-01-13 22:24:36.681 +07:00 [ERR] Email was not confirmed by user
+ate your account
+2025-01-13 22:24:36.681 +07:00 [ERR] Email was not confirmed by user

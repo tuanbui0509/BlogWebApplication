@@ -19,8 +19,8 @@ namespace Blog.Persistence.Data.Seeds
 
         public async Task Initialize(IServiceProvider serviceProvider)
         {
-            // await SetUpRoles();
-            // await SeedUsersAsync();
+            await SetUpRoles();
+            await SeedUsersAsync();
         }
 
         public async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)

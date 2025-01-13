@@ -3,12 +3,10 @@ using System.Security.Claims;
 using Blog.Application.Business.Posts.Commands.CreatePost;
 using Blog.Application.Business.Posts.Queries.GetAllPosts;
 using Blog.Application.Business.Posts.Queries.GetPostById;
-using Blog.Domain.Identity;
 using Blog.Shared.Result;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 

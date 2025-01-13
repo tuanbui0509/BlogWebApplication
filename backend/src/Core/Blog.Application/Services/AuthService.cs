@@ -1,10 +1,13 @@
 using System.Text;
 using Blog.Application.Abstractions;
+using Blog.Application.Business.Authentication.Commands;
 using Blog.Application.Dtos.Auth;
 using Blog.Application.Dtos.Email;
 using Blog.Application.Interfaces;
 using Blog.Domain.Enums;
 using Blog.Domain.Identity;
+using Blog.Shared.Result;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -19,6 +22,8 @@ namespace Blog.Application.Services
         private readonly Serilog.ILogger _logger;
         private readonly IUrlHelperService _urlHelperService;
         private readonly IEmailService _emailService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
         public AuthService(
             RoleManager<ApplicationRole> roleManager,
             UserManager<ApplicationUser> userManager,
@@ -26,7 +31,8 @@ namespace Blog.Application.Services
             IRefreshTokenRepository refreshTokenRepository,
             Serilog.ILogger logger,
             IEmailService emailService,
-            IUrlHelperService urlHelperService)
+            IUrlHelperService urlHelperService,
+            SignInManager<ApplicationUser> signInManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -35,12 +41,12 @@ namespace Blog.Application.Services
             _logger = logger;
             _emailService = emailService;
             _urlHelperService = urlHelperService;
+            _signInManager = signInManager;
         }
 
         public async Task<AuthenticationResult> LoginAsync(string email, string password)
         {
-            email = email.ToUpperInvariant();
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(email.ToUpperInvariant());
             if (user == null || !await _userManager.CheckPasswordAsync(user, password))
             {
                 _logger.Error("Invalid username or password", email);
@@ -105,15 +111,24 @@ namespace Blog.Application.Services
             };
         }
 
-        public async Task<AuthenticationResult> RegisterAsync(string email, string password, string username)
+        public async Task<AuthenticationResult> RegisterAsync(RegisterCommand request)
         {
-            var user = new ApplicationUser { Email = email, UserName = username };
-            user.NormalizedEmail = email.ToUpperInvariant();
-            var result = await _userManager.CreateAsync(user, password);
+            var user = new ApplicationUser
+            {
+                Email = request.Email,
+                UserName = request.UserName,
+                NormalizedUserName = request.UserName.Normalize(),
+                FullName = request.FullName,
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            
+            user.NormalizedEmail = user.Email.ToUpperInvariant(); // Normalized
+            await _userManager.UpdateAsync(user);
 
             if (!result.Succeeded)
             {
-                _logger.Error(result.Errors.Select(e => e.Description).ToList().ToString(), email);
+                _logger.Error(result.Errors.Select(e => e.Description).ToList().ToString(), request.Email);
                 return new AuthenticationResult
                 {
                     IsSuccess = false,
@@ -134,7 +149,7 @@ namespace Blog.Application.Services
             // Send email
             await _emailService.SendEmailAsync(new EmailRequestDto()
             {
-                To = email,
+                To = request.Email,
                 Subject = "Code Study Mind Blog - Please activate your account",
                 Body = $@"
     <html lang='en'>
@@ -160,7 +175,7 @@ namespace Blog.Application.Services
                     <h1>Account Activation</h1>
                 </div>
                 <div class='body'>
-                    <p>Hello {email},</p>
+                    <p>Hello {request.FullName},</p>
                     <p>Thank you for registering with us! To complete your registration, please activate your account by clicking the link below:</p>
                     <p><a href='{callbackUrl}' class='button' style = 'color: #ffffff;'>Activate My Account</a></p>
                     <p>If you did not create an account with us, you can ignore this email.</p>
@@ -181,6 +196,66 @@ namespace Blog.Application.Services
                 Roles = new List<string> { Roles.User.ToString() },
                 ExpiresAt = DateTime.UtcNow.AddHours(1)
             };
+        }
+
+        public async Task<Shared.Result.IResult> SendTwoFactorCodeAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email.Normalize());
+            if (user == null)
+            {
+                return new FailureResult("Unable to load user.", StatusCodes.Status404NotFound);
+            }
+
+            // Generate a 2FA token for email-based authentication
+            var random = new Random();
+            var code = random.Next(100000, 999999).ToString();
+            // Store the token in the user manager (as a claim or custom store)
+            var result = await _userManager.SetAuthenticationTokenAsync(user, "Email", "TwoFactorCode", code);
+            if (!result.Succeeded) return new FailureResult("Failed to save 2FA code.", StatusCodes.Status404NotFound);
+
+            // Send the 2FA code to the user's email
+            var emailSubject = "Code Study Mind - Your 2FA Code";
+            var emailBody = File.ReadAllText("templates/Email/EmailOTPTemplate.html");
+            emailBody = emailBody.Replace("{{OTP_CODE}}", code);
+            await _emailService.SendEmailAsync(new EmailRequestDto
+            {
+                To = email,
+                Subject = emailSubject,
+                Body = emailBody
+            });
+
+            // Redirect to the page where the user can input the 2FA code
+            return new SuccessResult("Sent email", StatusCodes.Status200OK);
+        }
+
+        public async Task<Shared.Result.IResult> VerifyTwoFactorCodeAsync(string code, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email.Normalize());
+
+            if (user == null)
+            {
+                return new FailureResult("Unable to load user.", StatusCodes.Status404NotFound);
+            }
+
+            // Validate the 2FA code entered by the user
+            var storedToken = await _userManager.GetAuthenticationTokenAsync(user, "Email", "TwoFactorCode");
+            if (storedToken == null || storedToken != code)
+            {
+                return new FailureResult("Invalid or expired code.");
+            }
+
+            // Remove the token after successful verification
+            await _userManager.RemoveAuthenticationTokenAsync(user, "Email", "TwoFactorCode");
+
+            // Enable TwoFactorEnabled for the user
+            user.TwoFactorEnabled = true; // Update the field
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return new FailureResult("Failed to enable two-factor authentication.");
+            }
+
+            return new SuccessResult("2FA verified and enabled successfully.");
         }
     }
 }

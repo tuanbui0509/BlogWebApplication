@@ -16,7 +16,7 @@ namespace Blog.Application.Business.Authentication.Handlers
 
         public async Task<AuthenticationResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            return await _authService.RegisterAsync(request.Email, request.Password, request.UserName);
+            return await _authService.RegisterAsync(request);
         }
     }
 }
