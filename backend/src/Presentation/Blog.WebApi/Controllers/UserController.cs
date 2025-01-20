@@ -140,12 +140,12 @@ namespace Blog.WebApi.Controllers
 
                 if (result.Succeeded)
                 {
-                    _logger.Information($"User {user.Email} added to the {roleName} role");
+                    _logger.Information("User {Email} added to the {Role} role", user.Email, roleName);
                     return Ok(new { result = $"User {user.Email} added to the {roleName} role" });
                 }
                 else
                 {
-                    _logger.Information($"Error: Unable to add user {user.Email} to the {roleName} role");
+                    _logger.Information("Error: Unable to add user {Email} to the {Role} role", user.Email, roleName);
                     return BadRequest(new { error = $"Error: Unable to add user {user.Email} to the {roleName} role" });
                 }
             }

@@ -95,7 +95,7 @@ namespace Blog.Tests.Presentation.Controller
             // Assert
             var okResult = result as OkObjectResult;
             okResult.Should().NotBeNull();
-            okResult!.Value.Should().BeEquivalentTo(new { Token = registerResult.AccessToken });
+            okResult.Value.Should().Be("Registration successful. Please check your email to confirm your account.");
         }
 
         [Fact]
