@@ -52,6 +52,7 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 #### CleanArchitectureDemo.WebAPI project needs the following Nuget packages
 
 - [MediatR (12.0.1)](https://www.nuget.org/packages/MediatR)
+<!-- Note Security for sentensenive -->
 
 ### Front-end User page: NextJS => For SEO
 ### Front-end Admin page: ReactJS
@@ -67,7 +68,7 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 
 ## Features
 ### On Backend project
-
+- Apply the clean architecture for an ASP.NET application using Domain-Driven Design (DDD) principles for a Blog web application
 - Authentication/Authorization
 - Get OTP 
 - Send Email 

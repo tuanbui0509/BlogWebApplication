@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your Email</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border: 1px solid #e5e5e5;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .email-header {
+        background-color: #4caf50;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px 0;
+      }
+      .email-body {
+        padding: 30px;
+        text-align: center;
+      }
+      .email-body h1 {
+        font-size: 24px;
+        color: #333333;
+      }
+      .email-body p {
+        font-size: 16px;
+        color: #666666;
+        margin: 20px 0;
+      }
+      .otp-code {
+        display: inline-block;
+        font-size: 24px;
+        font-weight: bold;
+        color: #4caf50;
+        background-color: #f0f0f0;
+        padding: 10px 20px;
+        border-radius: 4px;
+        letter-spacing: 2px;
+        margin: 20px 0;
+      }
+      .email-footer {
+        background-color: #f9f9f9;
+        color: #999999;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+      }
+      .email-footer a {
+        color: #4caf50;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Email Header -->
+      <div class="email-header">
+        <h2>Code Study Mind </h2>
+      </div>
+
+      <!-- Email Body -->
+      <div class="email-body">
+        <h1>Verify Your Email</h1>
+        <p>
+          We received a request to verify your email address. Please use the OTP
+          below to complete your verification process.
+        </p>
+        <div class="otp-code">{{OTP_CODE}}</div>
+        <p>
+          This OTP is valid for 1 minutes. If you did not request this, please
+          ignore this email.
+        </p>
+      </div>
+
+      <!-- Email Footer -->
+      <div class="email-footer">
+        <p>
+          Need help? <a href="mailto:support@yourapp.com">Contact Support</a>
+        </p>
+        <p>© 2025 YourApp. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

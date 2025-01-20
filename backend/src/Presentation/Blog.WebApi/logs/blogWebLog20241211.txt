@@ -1,0 +1,12 @@
+2024-12-11 00:41:01.601 +07:00 [WRN] Failed to determine the https port for redirect.
+2024-12-11 00:41:01.699 +07:00 [INF] Get all posts
+2024-12-11 00:41:10.808 +07:00 [INF] Get all posts
+2024-12-11 00:41:42.043 +07:00 [INF] Get all posts
+2024-12-11 00:41:42.121 +07:00 [INF] Get all posts
+:42.043 +07:00 [INF] Get all posts
+2024-12-11 00:41:42.121 +07:00 [INF] Get all posts
+2024-12-11 00:51:15.491 +07:00 [WRN] Failed to determine the https port for redirect.
+2024-12-11 00:51:15.578 +07:00 [INF] Get all posts
+2024-12-11 00:56:00.199 +07:00 [INF] Get all posts
+:15.578 +07:00 [INF] Get all posts
+2024-12-11 00:56:00.199 +07:00 [INF] Get all posts
