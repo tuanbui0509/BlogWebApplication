@@ -89,6 +89,8 @@ Go to the [Nuget Web Store page for *.NET*](https://www.nuget.org/packages/) and
 -  Mixin
 -  Moment
 
+## Setting SSH Key
+- cat ~/.ssh/id_rsa.pub
 # Finally
 
 [**Markdownguide**](https://www.markdownguide.org/basic-syntax/)<br>

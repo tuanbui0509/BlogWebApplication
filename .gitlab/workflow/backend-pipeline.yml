@@ -1,0 +1,49 @@
+backend_build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - cd backend
+    - dotnet restore
+    - dotnet build --configuration Release
+  artifacts:
+    paths:
+      - backend/**/bin/
+      - backend/**/obj/
+    expire_in: 1 hour
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - backend/**/obj/
+      - backend/**/bin/
+
+backend_test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - cd backend
+    - dotnet test --logger:"console;verbosity=detailed"
+  dependencies:
+    - backend_build
+
+backend_security:
+  stage: security
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - dotnet tool install --global security-scan
+    - security-scan backend/**/*.csproj
+
+backend_docker:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE: ${CI_REGISTRY_IMAGE}/backend
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA -f backend/Dockerfile ./backend
+    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHA $DOCKER_IMAGE:$ENVIRONMENT
+    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHA
+    - docker push $DOCKER_IMAGE:$ENVIRONMENT
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"

@@ -1,0 +1,39 @@
+frontend_user_build:
+  stage: build
+  image: node:18-alpine
+  script:
+    - cd frontend/user
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/user/.next/
+      - frontend/user/node_modules/
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend-user
+    paths:
+      - frontend/user/node_modules/
+
+frontend_user_test:
+  stage: test
+  image: node:18-alpine
+  script:
+    - cd frontend/user
+    - npm ci
+    - npm run test
+
+frontend_user_docker:
+  stage: docker
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    DOCKER_IMAGE: ${CI_REGISTRY_IMAGE}/frontend-user
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA -f frontend/user/Dockerfile ./frontend/user
+    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHA $DOCKER_IMAGE:$ENVIRONMENT
+    - docker push $DOCKER_IMAGE:$CI_COMMIT_SHA
+    - docker push $DOCKER_IMAGE:$ENVIRONMENT
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"
