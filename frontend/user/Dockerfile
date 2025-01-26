@@ -1,30 +1,11 @@
-# Build stage
-FROM node:18-alpine AS builder
+FROM node:20 AS build
 WORKDIR /app
-
-# Install dependencies
-COPY package*.json ./
-RUN npm ci
-
-# Copy source and build
+COPY package.json yarn.lock ./
+RUN yarn install
 COPY . .
-RUN npm run build
+RUN yarn build
 
-# Production stage
-FROM node:18-alpine AS runner
+FROM node:20
 WORKDIR /app
-
-ENV NODE_ENV production
-
-# Copy necessary files
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-EXPOSE 3000
-
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-
-CMD ["node", "server.js"]
+COPY --from=build /app ./
+CMD ["yarn", "start"]

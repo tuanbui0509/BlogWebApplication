@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  backend:
+    image: $CI_REGISTRY_IMAGE/backend:$DOCKER_TAG
+    ports:
+      - "5000:5000"
+
+  frontend-admin:
+    image: $CI_REGISTRY_IMAGE/frontend-admin:$DOCKER_TAG
+    ports:
+      - "3001:80"
+
+  frontend-user:
+    image: $CI_REGISTRY_IMAGE/frontend-user:$DOCKER_TAG
+    ports:
+      - "3000:3000"
