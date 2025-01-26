@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*", // Include the `src` folder and its subfolders
+    "vite.config.ts" // Explicitly include the Vite config file
+  ],
+  "exclude": [
+    "node_modules", // Exclude `node_modules` directory
+    "dist", // Exclude output folder
+    "build" // Exclude build folder
+  ]
+}
