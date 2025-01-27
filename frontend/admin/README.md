@@ -1,32 +1,50 @@
 # React + TypeScript + Vite
-- Admin template designed to manage a blog web application, using React, TypeScript, Vite, Redux Toolkit, and Tailwind CSS. This structure ensures scalability, maintainability, and clear separation of concerns.
-```js
-src/
-├── api/                // API layer (Axios instance, API functions)
-├── app/                // Redux Toolkit store, slices, and middleware
-├── assets/             // Static assets (images, fonts, etc.)
-├── components/         // Reusable UI components
-│   ├── common/         // Generic components (buttons, modals, etc.)
-│   ├── layout/         // Layout components (Navbar, Sidebar, Footer)
-│   └── blog/           // Components specific to blog management
-├── config/             // Configuration files (e.g., environment variables)
-├── features/           // Feature-specific modules (Redux slices, components)
-│   ├── auth/           // Authentication module
-│   ├── posts/          // Blog posts management module
-│   ├── users/          // User management module
-│   └── analytics/      // Analytics and stats module
-├── hooks/              // Custom React hooks
-├── layouts/            // Page layouts (e.g., admin, public)
-├── pages/              // Application pages (routes)
-│   ├── dashboard/      // Dashboard-related pages
-│   ├── posts/          // Pages for managing blog posts
-│   ├── users/          // Pages for managing users
-│   └── auth/           // Authentication pages (login, signup)
-├── routes/             // Centralized route definitions
-├── services/           // Business logic (API services)
-├── styles/             // Global Tailwind CSS configurations and styles
-├── types/              // TypeScript types and interfaces
-├── utils/              // Utility functions and helpers
-└── vite-env.d.ts       // Vite environment definitions
 
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+
+- Configure the top-level `parserOptions` property like this:
+
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
+
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react'
+
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+})
 ```
