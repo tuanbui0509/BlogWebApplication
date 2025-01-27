@@ -1,7 +1,7 @@
 include:
-  - local: '.gitlab/workflows/backend-pipeline.yml'
-  - local: '.gitlab/workflows/frontend-admin-pipeline.yml'
-  - local: '.gitlab/workflows/frontend-user-pipeline.yml'
+  - local: '.gitlab/workflow/backend-pipeline.yml'
+  - local: '.gitlab/workflow/frontend-admin-pipeline.yml'
+  - local: '.gitlab/workflow/frontend-user-pipeline.yml'
 
 stages:
   - build

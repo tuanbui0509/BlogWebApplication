@@ -1,6 +1,6 @@
 frontend_admin_build:
   stage: build
-  image: node:18-alpine
+  image: node:20
   script:
     - cd frontend/admin
     - npm ci
@@ -16,7 +16,7 @@ frontend_admin_build:
 
 frontend_admin_test:
   stage: test
-  image: node:18-alpine
+  image: node:20
   script:
     - cd frontend/admin
     - npm ci
