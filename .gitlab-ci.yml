@@ -8,6 +8,7 @@ stages:
   - test
   - docker
   - deploy
+  - security  # Add the security stage here
 
 variables:
   DOCKER_REGISTRY: ${CI_REGISTRY}
