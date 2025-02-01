@@ -5,7 +5,12 @@ variables:
   image: node:20
   script:
     - cd frontend/admin
-
+frontend_admin_test:
+  extends: .frontend-admin-template
+  stage: test
+  script:
+    - npm ci
+    - npm run test
 frontend_admin_build:
   extends: .frontend-admin-template
   stage: build
@@ -16,13 +21,6 @@ frontend_admin_build:
     paths:
       - frontend/admin/build/
       - frontend/admin/node_modules/
-
-frontend_admin_test:
-  extends: .frontend-admin-template
-  stage: test
-  script:
-    - npm ci
-    - npm run test
 
 frontend_admin_docker:
   stage: docker

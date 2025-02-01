@@ -6,6 +6,13 @@ variables:
   script:
     - cd frontend/user
 
+frontend_user_test:
+  extends: .frontend-user-template
+  stage: test
+  script:
+    - npm ci
+    - npm run test
+    
 frontend_user_build:
   extends: .frontend-user-template
   stage: build
@@ -16,13 +23,6 @@ frontend_user_build:
     paths:
       - frontend/user/.next/
       - frontend/user/node_modules/
-
-frontend_user_test:
-  extends: .frontend-user-template
-  stage: test
-  script:
-    - npm ci
-    - npm run test
 
 frontend_user_docker:
   stage: docker
