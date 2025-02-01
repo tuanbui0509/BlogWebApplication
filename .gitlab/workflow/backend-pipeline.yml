@@ -6,10 +6,18 @@ variables:
   script:
     - cd backend
 
-backend_build:
-  extends: .backend-template
-  stage: build
+backend_test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
+    - cd backend
+    - dotnet test --logger:"console;verbosity=detailed"
+    
+backend_build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:8.0
+  script:
+    - cd backend
     - dotnet restore
     - dotnet build --configuration Release
   artifacts:
@@ -17,14 +25,11 @@ backend_build:
       - backend/**/bin/
       - backend/**/obj/
     expire_in: 1 hour
-
-backend_test:
-  extends: .backend-template
-  stage: test
-  script:
-    - dotnet test --logger:"console;verbosity=detailed"
-  dependencies:
-    - backend_build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - backend/**/obj/
+      - backend/**/bin/
 
 backend_security:
   extends: .backend-template
