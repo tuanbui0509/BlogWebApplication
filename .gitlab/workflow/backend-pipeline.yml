@@ -32,7 +32,7 @@ backend_build:
       - backend/**/bin/
 
 backend_security:
-  stage: security
+  stage: security_scanning
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
     - export PATH="$HOME/.dotnet/tools:$PATH"
