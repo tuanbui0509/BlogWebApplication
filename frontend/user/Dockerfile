@@ -5,5 +5,7 @@ RUN yarn install
 COPY . .
 RUN yarn build
 
-FROM nginx:1.25
-COPY --from=build /app/dist /usr/share/nginx/html
+FROM node:20
+WORKDIR /app
+COPY --from=build /app ./
+CMD ["yarn", "start"]
