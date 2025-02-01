@@ -12,7 +12,7 @@ backend_test:
   script:
     - cd backend
     - dotnet test --logger:"console;verbosity=detailed"
-    
+
 backend_build:
   stage: build
   image: mcr.microsoft.com/dotnet/sdk:8.0
@@ -32,11 +32,13 @@ backend_build:
       - backend/**/bin/
 
 backend_security:
-  extends: .backend-template
-  stage: security_scanning
+  stage: security
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
-    - dotnet tool install --global security-scan
-    - security-scan backend/**/*.csproj
+    - dotnet new tool-manifest
+    - dotnet tool install security-scan
+    - dotnet tool run security-scan backend/**/*.csproj
+
 
 backend_docker:
   stage: docker
