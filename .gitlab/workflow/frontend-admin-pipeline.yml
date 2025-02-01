@@ -9,6 +9,9 @@ frontend_admin_build:
     paths:
       - frontend/admin/build/
       - frontend/admin/node_modules/
+      - coverage/
+    reports:
+      junit: frontend/admin/junit.xml
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend-admin
     paths:

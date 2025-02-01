@@ -7,6 +7,7 @@ import {
   incrementByAmount,
 } from "./features/counter/counterSlice";
 import { RootState } from "./app/store";
+import Button from "./components/Button";
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -21,24 +22,9 @@ const App: React.FC = () => {
         <p className="text-lg text-gray-600 mt-2">Counter Value: {counter}</p>
       </header>
       <div className="flex space-x-4">
-        <button
-          className="bg-blue-500 text-white py-2 px-4 rounded"
-          onClick={() => dispatch(increment())}
-        >
-          Increment
-        </button>
-        <button
-          className="bg-red-500 text-white py-2 px-4 rounded"
-          onClick={() => dispatch(decrement())}
-        >
-          Decrement
-        </button>
-        <button
-          className="bg-green-500 text-white py-2 px-4 rounded"
-          onClick={() => dispatch(incrementByAmount(100))}
-        >
-          Set to 100
-        </button>
+        <Button label="Increment" onClick={() => dispatch(increment())} />
+        <Button label="Decrement" onClick={() => dispatch(decrement())} />
+        <Button label="Set to 100" onClick={() => dispatch(incrementByAmount(100))}/>
       </div>
     </div>
   );
