@@ -1,27 +1,26 @@
-frontend_admin_build:
-  stage: build
+variables:
+  DOCKER_IMAGE: ${CI_REGISTRY_IMAGE}/frontend-admin
+
+.frontend-admin-template:
   image: node:20
   script:
     - cd frontend/admin
+
+frontend_admin_build:
+  extends: .frontend-admin-template
+  stage: build
+  script:
     - npm ci
     - npm run build
   artifacts:
     paths:
       - frontend/admin/build/
       - frontend/admin/node_modules/
-      - coverage/
-    reports:
-      junit: frontend/admin/junit.xml
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-frontend-admin
-    paths:
-      - frontend/admin/node_modules/
 
 frontend_admin_test:
+  extends: .frontend-admin-template
   stage: test
-  image: node:20
   script:
-    - cd frontend/admin
     - npm ci
     - npm run test
 
@@ -30,13 +29,9 @@ frontend_admin_docker:
   image: docker:latest
   services:
     - docker:dind
-  variables:
-    DOCKER_IMAGE: ${CI_REGISTRY_IMAGE}/frontend-admin
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker build -t $DOCKER_IMAGE:$CI_COMMIT_SHA -f frontend/admin/Dockerfile ./frontend/admin
-    - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHA $DOCKER_IMAGE:$ENVIRONMENT
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHA
-    - docker push $DOCKER_IMAGE:$ENVIRONMENT
   rules:
     - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"
