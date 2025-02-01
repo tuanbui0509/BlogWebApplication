@@ -35,6 +35,7 @@ backend_security:
   stage: security_scanning
   image: mcr.microsoft.com/dotnet/sdk:8.0
   script:
+    - apt-get update && apt-get install -y dotnet-runtime-6.0
     - export PATH="$HOME/.dotnet/tools:$PATH"
     - dotnet tool install --global security-scan
     - security-scan backend/**/*.csproj
