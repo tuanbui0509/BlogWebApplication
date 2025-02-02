@@ -41,7 +41,7 @@ backend_security:
     - apt-get install -y dotnet-runtime-6.0 dotnet-runtime-8.0
     - export PATH="$HOME/.dotnet/tools:$PATH"
     - dotnet tool install --global security-scan
-    - security-scan backend/**/*.csproj
+    - security-scan backend/**/*.csproj --sdk-path=/usr/share/dotnet
 
 backend_docker:
   stage: docker
