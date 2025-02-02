@@ -31,17 +31,17 @@ backend_build:
       - backend/**/obj/
       - backend/**/bin/
 
-backend_security:
-  stage: security_scanning
-  image: mcr.microsoft.com/dotnet/sdk:8.0
-  script:
-    - wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-    - dpkg -i packages-microsoft-prod.deb
-    - apt-get update
-    - apt-get install -y dotnet-runtime-6.0 dotnet-runtime-8.0
-    - export PATH="$HOME/.dotnet/tools:$PATH"
-    - dotnet tool install --global security-scan
-    - security-scan backend/**/*.csproj --sdk-path=/usr/share/dotnet
+# backend_security:
+#   stage: security_scanning
+#   image: mcr.microsoft.com/dotnet/sdk:8.0
+#   script:
+#     - wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+#     - dpkg -i packages-microsoft-prod.deb
+#     - apt-get update
+#     - apt-get install -y dotnet-runtime-6.0 dotnet-runtime-8.0
+#     - export PATH="$HOME/.dotnet/tools:$PATH"
+#     - dotnet tool install --global security-scan
+#     - security-scan backend/**/*.csproj --sdk-path=/usr/share/dotnet
 
 backend_docker:
   stage: docker

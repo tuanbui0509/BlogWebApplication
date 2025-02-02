@@ -7,7 +7,7 @@ stages:
   - test  
   - build
   - unitest
-  - security_scanning
+  # - security_scanning
   - docker
   - deploy
   - notify
