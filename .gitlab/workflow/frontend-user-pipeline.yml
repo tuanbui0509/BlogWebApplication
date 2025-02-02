@@ -1,6 +1,14 @@
+frontend_user_test:
+  stage: test
+  image: node:20
+  script:
+    - cd frontend/user
+    - npm ci
+    - npm run test
+
 frontend_user_build:
   stage: build
-  image: node:18-alpine
+  image: node:20
   script:
     - cd frontend/user
     - npm ci
@@ -13,14 +21,6 @@ frontend_user_build:
     key: ${CI_COMMIT_REF_SLUG}-frontend-user
     paths:
       - frontend/user/node_modules/
-
-frontend_user_test:
-  stage: test
-  image: node:18-alpine
-  script:
-    - cd frontend/user
-    - npm ci
-    - npm run test
 
 frontend_user_docker:
   stage: docker

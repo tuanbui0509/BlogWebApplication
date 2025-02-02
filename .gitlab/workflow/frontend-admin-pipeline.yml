@@ -1,6 +1,14 @@
+frontend_admin_test:
+  stage: test
+  image: node:20
+  script:
+    - cd frontend/admin
+    - npm ci
+    - npm run test
+    
 frontend_admin_build:
   stage: build
-  image: node:18-alpine
+  image: node:20
   script:
     - cd frontend/admin
     - npm ci
@@ -9,18 +17,13 @@ frontend_admin_build:
     paths:
       - frontend/admin/build/
       - frontend/admin/node_modules/
+      - coverage/
+    reports:
+      junit: frontend/admin/junit.xml
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend-admin
     paths:
       - frontend/admin/node_modules/
-
-frontend_admin_test:
-  stage: test
-  image: node:18-alpine
-  script:
-    - cd frontend/admin
-    - npm ci
-    - npm run test
 
 frontend_admin_docker:
   stage: docker

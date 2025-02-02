@@ -1,13 +1,24 @@
 {
-  "extends": "./tsconfig.json", // Inherit common settings from the main tsconfig.json
   "compilerOptions": {
-    "target": "ES2020", // Set the JavaScript version for Node.js compatibility
-    "module": "CommonJS", // Use CommonJS modules (standard for Node.js)
-    "moduleResolution": "node", // Use Node.js module resolution strategy
-    "esModuleInterop": true, // Allow compatibility with CommonJS modules
-    "skipLibCheck": true, // Skip library type checking for faster compilation
-    "forceConsistentCasingInFileNames": true
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"], // Include server-side TypeScript files
-  "exclude": ["node_modules", "dist", "build"] // Exclude non-server code
+  "include": ["vite.config.ts"]
 }

@@ -1,48 +1,28 @@
-import globals from 'globals';
-import react from 'eslint-plugin-react';
-import typescript from '@typescript-eslint/eslint-plugin';
-import reactHooks from 'eslint-plugin-react-hooks';
-import tsParser from '@typescript-eslint/parser';
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
 
-export default [
-  // Basic ESLint configuration for JavaScript and TypeScript files
+export default tseslint.config(
+  { ignores: ['dist'] },
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2020, // Modern ECMAScript features
-      sourceType: 'module', // Use ES module imports
-      parser: tsParser, // Use the TypeScript parser
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true, // Enable JSX parsing
-        },
-      },
-      globals: {
-        ...globals.browser, // Browser globals
-        ...globals.node,    // Node.js globals
-      },
+      ecmaVersion: 2020,
+      globals: globals.browser,
     },
     plugins: {
-      react,
-      '@typescript-eslint': typescript,
       'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
     },
     rules: {
-      'no-unused-vars': 'warn',
-      'no-console': 'warn',
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'react/react-in-jsx-scope': 'off', // Not needed with React 17+ JSX Transform
-      'react/prop-types': 'off', // Disable prop-types since we use TypeScript
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
-    },
-    settings: {
-      'import/resolver': {
-        alias: {
-          map: [['@', './src']], // Alias `@` to the `src` folder
-          extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        },
-      },
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
     },
   },
-];
+)
